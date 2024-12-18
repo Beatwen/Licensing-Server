@@ -1,11 +1,16 @@
 export interface UserAttributes {
     id: number;
-    name: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
     email: string;
+    emailConfirmed: boolean;
+    confirmationToken: string | null;
     password: string;
     createdAt?: Date;
     updatedAt?: Date;
   }
   
-  export type UserCreationAttributes = Omit<UserAttributes, "id">;
+  export interface UserCreationAttributes
+  extends Omit<UserAttributes, "id" | "createdAt" | "updatedAt"> {}
   

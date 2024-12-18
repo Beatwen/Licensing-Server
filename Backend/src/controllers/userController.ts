@@ -1,23 +1,53 @@
 import { Request, Response } from "express";
-import User from "../models/user";
+import { User } from "../models/user";
+import License from "../models/licensing";
+import { generateConfirmationToken } from "../utils/tokenUtils";
+import { sendConfirmationEmail } from "../utils/emailUtils";
+import { createFreeLicense } from "./licenseController";
 
-// Créer un utilisateur
+
 export const createUser = async (req: Request, res: Response): Promise<void> => {
-  console.log("Received body:", req.body); // Log du corps reçu
-  const { name, email, password } = req.body;
-
+  const { userName, firstName, lastName, email, password } = req.body;
   try {
-    const user = await User.create({ name, email, password });
-    res.status(201).json(user);
+    
+    const confirmationToken = generateConfirmationToken();
+    
+    if (!email || !password) {
+      res.status(400).json({ error: "Email and password are required." });
+      return;
+    }
+
+    const user = await User.create({
+      userName: userName || email,
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmationToken,
+
+    });
+    const freeLicense = await createFreeLicense(user.id);
+
+    await sendConfirmationEmail(email, confirmationToken, freeLicense);
+    console.log("message sent");
+
+    res.status(201).json({
+      message: "User created successfully",
+      user,
+    });
+    console.log("User created successfully");
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    res.status(500).json({ error: (error as Error).message });
   }
 };
+
 
 // Récupérer tous les utilisateurs
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({
+      include: { model: License, as: "licenses" }, // Include licenses in the query
+    });
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -29,7 +59,9 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   const { id } = req.params;
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(id, {
+      include: { model: License, as: "licenses" }, // Include licenses in the query
+    });
     if (user) {
       res.json(user);
     } else {
@@ -43,12 +75,12 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 // Mettre à jour un utilisateur
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const { name, email, password } = req.body;
+  const { lastName, firstName,userName, email, password } = req.body;
 
   try {
     const user = await User.findByPk(id);
     if (user) {
-      await user.update({ name, email, password });
+      await user.update({ lastName, firstName,userName, email, password });
       res.json(user);
     } else {
       res.status(404).json({ error: "User not found" });
