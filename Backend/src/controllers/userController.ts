@@ -4,44 +4,25 @@ import License from "../models/licensing";
 import { generateConfirmationToken } from "../utils/tokenUtils";
 import { sendConfirmationEmail } from "../utils/emailUtils";
 import { createFreeLicense } from "./licenseController";
+import { createUserUtil } from "../utils/userUtils";
+
 
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   const { userName, firstName, lastName, email, password } = req.body;
   try {
-    
-    const confirmationToken = generateConfirmationToken();
-    
-    if (!email || !password) {
-      res.status(400).json({ error: "Email and password are required." });
-      return;
-    }
-
-    const user = await User.create({
-      userName: userName || email,
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmationToken,
-
-    });
-    const freeLicense = await createFreeLicense(user.id);
-
-    await sendConfirmationEmail(email, confirmationToken, freeLicense);
-    console.log("message sent");
+    // Utilisez la fonction utilitaire pour créer l'utilisateur
+    const newUser = await createUserUtil(userName, firstName, lastName, email, password);
 
     res.status(201).json({
       message: "User created successfully",
-      user,
+      user: newUser,
     });
     console.log("User created successfully");
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
 };
-
-
 // Récupérer tous les utilisateurs
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {

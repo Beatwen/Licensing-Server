@@ -117,9 +117,12 @@ export const validateLicense = async (req: Request, res: Response): Promise<void
 export const activateLicense = async (req: Request, res: Response): Promise<void> => {
     const userKey = req.header("X-USER-KEY");
     const { licenseKey } = req.body;
-
-    if (!userKey || !licenseKey) {
-        res.status(400).json({ error: "Missing required fields." });
+    if (userKey === undefined || !licenseKey) {
+        res.status(400).json({ error: "Missing user key or license key." });
+        return;
+    }
+    if (!licenseKey) {
+        res.status(400).json({ error: "Missing license key." });
         return;
     }
 

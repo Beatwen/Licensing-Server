@@ -2,6 +2,10 @@ import { DataTypes, Model, Sequelize } from "sequelize";
 import { UserAttributes } from "../types/userTypes";
 import License from "./licensing";
 import bcrypt from "bcrypt";
+import Client from "./client";
+import RefreshToken from "./oauth/refreshToken";
+import AccessToken from "./oauth/accessToken";
+import Device from "./device";
 
 export interface UserCreationAttributes
   extends Omit<UserAttributes, "id" | "createdAt" | "updatedAt" | "emailConfirmed"> {}
@@ -66,7 +70,9 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
             };
             if (user.password) {
               const saltRounds = 10;
+              console.log(user.password);
               user.password = await bcrypt.hash(user.password, saltRounds);
+              console.log(user.password);
             };
           },
           beforeUpdate: async (user) => {
@@ -81,10 +87,10 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
 
   }
   static associate() {
-    User.hasMany(License, {
-      foreignKey: "userId", // La clé étrangère dans la table `licenses`
-      as: "licenses",       // Doit correspondre à l'alias utilisé dans les requêtes
-      onDelete: "CASCADE",  // Suppression en cascade des licences associées
-    });
-  }  
+    User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens', onDelete: 'CASCADE' });
+    User.hasMany(AccessToken, { foreignKey: 'userId', as: 'accessTokens', onDelete: 'CASCADE' });
+    User.hasMany(Device, { foreignKey: 'userId', as: 'devices', onDelete: 'CASCADE' });
+    User.hasMany(License, { foreignKey: 'userId', as: 'licenses', onDelete: 'CASCADE' });
+    User.hasMany(Client, { foreignKey: 'userId', as: 'clients', onDelete: 'CASCADE' });
+  }
 }
