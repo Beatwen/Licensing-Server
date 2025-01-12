@@ -5,7 +5,7 @@ dotenv.config();
 
 export const ensureDatabaseAndUser = async (): Promise<void> => {
   const adminClient = new Client({
-    user: "postgres", // Utilisateur administrateur PostgreSQL
+    user: "postgres", 
     host: process.env.DB_HOST || "localhost",
     password: process.env.POSTGRES_PASSWORD || "admin", // Mot de passe de l'utilisateur postgres
     port: Number(process.env.DB_PORT) || 5432,
