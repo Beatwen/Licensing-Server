@@ -74,7 +74,6 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 // Supprimer un utilisateur
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-
   try {
     const user = await User.findByPk(id);
     if (user) {

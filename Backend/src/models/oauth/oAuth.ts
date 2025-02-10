@@ -42,7 +42,6 @@ const oAuthModel = {
     if (!clientRecord) {
       throw new Error("Client not found");
     }
-    console.log("Client Record:", clientRecord);
 
     const accessTokenPayload = {
       sub: user.id,
@@ -53,10 +52,7 @@ const oAuthModel = {
     if (!jwtSecret) {
       throw new Error("JWT_SECRET_KEY is not defined");
     }
-    console.log("JWT Secret Key:", jwtSecret);
-    console.log("Access Token Payload:", accessTokenPayload);
     const accessToken = jwt.sign(accessTokenPayload, jwtSecret, { expiresIn: '1h' });
-    console.log("Access Token:", accessToken);
     
     const accessTokenData = {
       accessToken: accessToken,
@@ -65,10 +61,8 @@ const oAuthModel = {
       oauthClientId: clientRecord.clientOauthId,
       userId: user.id,
     };
-    console.log("Access Token Data:", accessTokenData);
 
     await AccessToken.create(accessTokenData);
-    console.log("Access Token Created");
 
     const refreshTokenPayload = {
       sub: user.id,
@@ -78,23 +72,16 @@ const oAuthModel = {
     if (!jwtRefreshSecret) {
       throw new Error("JWT_REFRESH_SECRET_KEY is not defined");
     }
-    console.log("JWT Refresh Secret Key:", jwtRefreshSecret);
-    console.log("Refresh Token Payload:", refreshTokenPayload);
-    const refreshToken = jwt.sign(refreshTokenPayload, jwtRefreshSecret, { expiresIn: '14d' });
-    console.log("Refresh Token:", refreshToken);
-
-    console.log("Creating Refresh Token with clientOauthId:", clientRecord.clientOauthId);
+    const refreshToken = jwt.sign(refreshTokenPayload, jwtRefreshSecret, { expiresIn: '14d' }); // You can set a very long expiration time here
     const refreshTokenData = {
       refreshToken: refreshToken,
-      refreshTokenExpiresAt: token.refreshTokenExpiresAt,
-      clientId: clientRecord.id, // Ensure clientId is set correctly
-      oauthClientId: clientRecord.clientOauthId, // Ensure oauthClientId is set correctly
+      refreshTokenExpiresAt: token.refreshTokenExpiresAt || null, 
+      clientId: clientRecord.id, 
+      oauthClientId: clientRecord.clientOauthId, 
       userId: user.id,
     };
-    console.log("Refresh Token Data:", refreshTokenData);
-
     await RefreshToken.create(refreshTokenData);
-    console.log("Refresh Token Created");
+
 
     return {
       accessToken: accessToken,
@@ -124,20 +111,27 @@ const oAuthModel = {
   },
 
   getRefreshToken: async (refreshToken: string) => {
-    const token = await RefreshToken.findOne({ where: { refreshToken } });
-    if (!token) {
+    try {
+      const token = await RefreshToken.findOne({ where: { refreshToken } });
+      if (!token) {
+        console.error("Refresh token not found");
+        return null;
+      }
+      const client = await Client.findOne({ where: { id: token.clientId } });
+      if (!client) {
+        console.error("Client not found for refresh token");
+        return null;
+      }
+      return {
+        refreshToken: token.refreshToken,
+        refreshTokenExpiresAt: token.refreshTokenExpiresAt,
+        client: { id: client.clientOauthId, grants: client.grants },
+        user: { id: token.userId },
+      };
+    } catch (error) {
+      console.error("Error fetching refresh token:", error);
       return null;
     }
-    const client = await Client.findOne({ where: { id: token.clientId } });
-    if (!client) {
-      return null;
-    }
-    return {
-      refreshToken: token.refreshToken,
-      refreshTokenExpiresAt: token.refreshTokenExpiresAt,
-      client: { id: client.clientOauthId, grants: client.grants },
-      user: { id: token.userId},
-    };
   },
 
   revokeToken: async (token: OAuthRefreshToken) => {

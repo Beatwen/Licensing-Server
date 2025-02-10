@@ -20,11 +20,9 @@ export const ensureDatabaseAndUser = async (): Promise<void> => {
       [process.env.DB_USER || "licensing_user"]
     );
     if (userExists.rowCount === 0) {
-      console.log(`User ${process.env.DB_USER} does not exist. Creating...`);
       await adminClient.query(
         `CREATE USER ${process.env.DB_USER} WITH PASSWORD '${process.env.DB_PASSWORD}';`
       );
-      console.log(`User ${process.env.DB_USER} created.`);
     }
 
     // Vérifie si la base existe

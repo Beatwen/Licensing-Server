@@ -219,6 +219,7 @@ authRouter.post("/logout", async (req: Request, res: Response): Promise<void> =>
 
     res.status(200).json({ message: "Logout successful!" });
   } catch (error) {
+    console.error("Error during logout:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 });

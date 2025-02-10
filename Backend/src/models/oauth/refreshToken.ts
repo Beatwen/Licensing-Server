@@ -2,10 +2,9 @@ import { Model, DataTypes, Sequelize } from "sequelize";
 import Client from "../client";
 import { User } from "../user";
 
-
 export class RefreshToken extends Model {
   public refreshToken!: string;
-  public refreshTokenExpiresAt!: Date;
+  public refreshTokenExpiresAt?: Date;
   public clientId!: number;
   public userId!: number;
   public oAuthClientId!: string; 
@@ -25,7 +24,7 @@ export class RefreshToken extends Model {
         },
         refreshTokenExpiresAt: {
           type: DataTypes.DATE,
-          allowNull: false,
+          allowNull: true, 
         },
         clientId: {
           type: DataTypes.INTEGER,

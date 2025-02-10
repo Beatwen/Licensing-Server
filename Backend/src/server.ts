@@ -58,10 +58,8 @@ const startServer = async () => {
 
     function validateApiKey(req: Request, res: Response, next: NextFunction): void {
       const apiKey = req.headers['x-api-key'];
-      console.log(apiKey);
 
       if (req.path.startsWith("/auth/confirm-email")) {
-        console.log("go to next");
         return next(); 
       }
 
