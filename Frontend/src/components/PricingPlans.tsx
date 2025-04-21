@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Loader } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
+import { logger } from '../utils/logger';
 
 interface PricingPlan {
   id: string;
@@ -13,26 +14,36 @@ interface PricingPlan {
   features: string[];
 }
 
+const pricingPlans: PricingPlan[] = [
+  {
+    id: 'basic',
+    name: 'Basic',
+    price: 99,
+    description: 'Perfect for small events',
+    features: [
+      'Up to 10 devices',
+      'Basic frequency coordination',
+      'Email support'
+    ]
+  },
+  {
+    id: 'pro',
+    name: 'Professional',
+    price: 299,
+    description: 'For professional sound engineers',
+    features: [
+      'Unlimited devices',
+      'Advanced frequency coordination',
+      'Priority support',
+      'Custom frequency ranges',
+      'Offline mode'
+    ]
+  }
+];
+
 const PricingPlans = () => {
-  const [plans, setPlans] = useState<PricingPlan[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const { user } = useAuthStore();
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const response = await api.get('/pricing');
-        setPlans(response.data);
-      } catch (error) {
-        toast.error('Failed to load pricing plans');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPlans();
-  }, []);
 
   const handlePurchase = async (plan: PricingPlan) => {
     if (!user) {
@@ -48,20 +59,13 @@ const PricingPlans = () => {
       // Activate the license automatically after purchase
       await api.post('/licenses/activate', { licenseKey: response.data.licenseKey });
       toast.success('License activated successfully');
-    } catch (error) {
+    } catch (error: unknown) {
+      logger.error('Failed to purchase license:', error);
       toast.error('Failed to purchase license');
     } finally {
       setIsPurchasing(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Loader className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
 
   return (
     <section id="pricing" className="py-20 bg-gray-50 dark:bg-gray-800">
@@ -77,7 +81,7 @@ const PricingPlans = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {plans.map((plan) => (
+          {pricingPlans.map((plan) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 20 }}

@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import MobileCTA from './components/MobileCTA';
 import Dashboard from './components/Dashboard';
 import PricingPlans from './components/PricingPlans';
+import VerifyEmail from './pages/VerifyEmail';
 import { useAuthStore } from './store/authStore';
 import { logger } from './utils/logger';
 
@@ -65,6 +66,7 @@ function App() {
             path="/dashboard"
             element={user ? <Dashboard /> : <Navigate to="/" replace />}
           />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
         <Footer />
         <MobileCTA />

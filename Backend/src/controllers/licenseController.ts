@@ -53,7 +53,15 @@ export const activateAndValidateLicense = async (req: Request, res: Response): P
     }
 };
 
-
+export const getUserLicenses = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    if (!id) {
+        res.status(400).json({ error: "Missing user key." });
+        return;
+    }
+    const licenses = await License.findAll({ where: { userId: id } });
+    res.status(200).json(licenses);
+}
 export const validateLicense = async (req: Request, res: Response): Promise<void> => {
     
     const userKey = req.header("X-USER-KEY");
@@ -206,4 +214,5 @@ export const LicenseController = {
     activateAndValidateLicense,
     activateLicense,
     buyLicense,
+    getUserLicenses,
 }

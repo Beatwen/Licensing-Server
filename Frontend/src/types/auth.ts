@@ -1,17 +1,19 @@
 export interface User {
   id: string;
   email: string;
-  name?: string;
+  userName?: string;
+  firstName?: string;
+  lastName?: string;
   createdAt: string;
 }
 
 export interface License {
   id: string;
-  key: string;
+  licenseKey: string;
   status: 'active' | 'inactive' | 'expired';
   activatedAt?: string;
   expiresAt?: string;
-  type: 'basic' | 'pro' | 'trial';
+  type: 'free' | 'basic' | 'pro' | 'trial';
   price?: number;
 }
 

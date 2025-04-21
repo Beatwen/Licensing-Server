@@ -67,6 +67,10 @@ const mockApi = {
         throw new Error('Not implemented');
     }
   },
+  put: async (url: string, data: Record<string, unknown>) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { data: { success: true } };
+  },
   get: async (url: string) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -128,52 +132,52 @@ api.interceptors.request.use((config) => {
 });
 
 // Response interceptor
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
 
-    // Only attempt to refresh token if it's a 401 error and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+//     // Only attempt to refresh token if it's a 401 error and we haven't tried to refresh yet
+//     if (error.response?.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
       
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const clientId = localStorage.getItem('clientId');
-        const clientSecret = localStorage.getItem('clientSecret');
+//       try {
+//         const refreshToken = localStorage.getItem('refreshToken');
+//         const clientId = localStorage.getItem('clientId');
+//         const clientSecret = localStorage.getItem('clientSecret');
         
-        // Only attempt refresh if we have all required tokens
-        if (refreshToken && clientId && clientSecret) {
-          logger.debug("Attempting to refresh token");
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
-            refreshToken,
-            client_id: clientId,
-            client_secret: clientSecret
-          });
+//         // Only attempt refresh if we have all required tokens
+//         if (refreshToken && clientId && clientSecret) {
+//           logger.debug("Attempting to refresh token");
+//           const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
+//             refreshToken,
+//             client_id: clientId,
+//             client_secret: clientSecret
+//           });
           
-          const { token } = response.data;
-          localStorage.setItem('token', token);
+//           const { token } = response.data;
+//           localStorage.setItem('token', token);
           
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        } else {
-          logger.debug("Missing tokens for refresh", { refreshToken, clientId, clientSecret });
-          throw new Error("Missing tokens for refresh");
-        }
-      } catch (refreshError) {
-        logger.error("Token refresh failed:", refreshError);
-        // Clear auth state and redirect to home
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('clientId');
-        localStorage.removeItem('clientSecret');
-        window.location.href = '/';
-        return Promise.reject(refreshError);
-      }
-    }
+//           originalRequest.headers.Authorization = `Bearer ${token}`;
+//           return api(originalRequest);
+//         } else {
+//           logger.debug("Missing tokens for refresh", { refreshToken, clientId, clientSecret });
+//           throw new Error("Missing tokens for refresh");
+//         }
+//       } catch (refreshError) {
+//         logger.error("Token refresh failed:", refreshError);
+//         // Clear auth state and redirect to home
+//         localStorage.removeItem('token');
+//         localStorage.removeItem('refreshToken');
+//         localStorage.removeItem('clientId');
+//         localStorage.removeItem('clientSecret');
+//         window.location.href = '/';
+//         return Promise.reject(refreshError);
+//       }
+//     }
     
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default isDevelopment ? mockApi : api;

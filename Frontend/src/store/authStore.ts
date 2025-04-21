@@ -5,10 +5,14 @@ import { logger } from '../utils/logger';
 
 interface AuthState {
   user: User | null;
+  userName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, userData: { userName?: string; firstName: string; lastName: string }) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
   initialize: () => Promise<void>;
@@ -16,6 +20,10 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  userName: null,
+  firstName: null,
+  lastName: null,
+  email: null,
   isLoading: false,
   error: null,
   
@@ -36,7 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     try {
       logger.info("Validating user session");
-      const response = await api.get('/user/me');
+      const response = await api.get('/users/me');
       logger.info("User session validated", response.data);
       set((state) => ({ ...state, user: response.data.user }));
     } catch (error: unknown) {
@@ -54,10 +62,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await api.post('/auth/login', { email, password });
       logger.info("Login response", response.data);
-      const { user, token, refreshToken, client } = response.data;
+      const { user, token, client } = response.data;
       
       // Store client credentials
       if (client) {
+        logger.info("client", client);
         logger.info("Storing client credentials");
         localStorage.setItem('clientId', client.clientId);
         localStorage.setItem('clientSecret', client.clientSecret);
@@ -65,39 +74,43 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       // Store tokens
       logger.info("Storing tokens");
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('token', token.accessToken);
+      localStorage.setItem('refreshToken', token.refreshToken);
       
       set((state) => ({ ...state, user, isLoading: false }));
     } catch (error: unknown) {
       logger.error("Login error:", error);
+      let errorMessage = "Une erreur est survenue";
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const response = error.response as { data?: { error?: string; message?: string } };
+        if (response?.data) {
+          errorMessage = response.data.error || response.data.message || errorMessage;
+        }
+      }
+      
       set((state) => ({ 
         ...state,
-        error: error instanceof Error ? error.message : 'An error occurred during login',
+        error: errorMessage,
         isLoading: false 
       }));
       throw error;
     }
   },
   
-  register: async (email, password) => {
+  register: async (email, password, userData) => {
     set((state) => ({ ...state, isLoading: true, error: null }));
     try {
-      const response = await api.post('/auth/register', { email, password });
+      const response = await api.post('/auth/register', { 
+        email, 
+        password,
+        ...userData
+      });
       logger.info("Register response", response.data);
-      const { user, token, refreshToken, client } = response.data;
       
-      // Store client credentials
-      if (client) {
-        logger.info("Storing client credentials");
-        localStorage.setItem('clientId', client.clientId);
-        localStorage.setItem('clientSecret', client.clientSecret);
-      }
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
-      
-      set((state) => ({ ...state, user, isLoading: false }));
+      // On ne stocke plus les tokens ni ne définissons l'utilisateur
+      // car l'email doit être vérifié d'abord
+      set((state) => ({ ...state, isLoading: false }));
     } catch (error: unknown) {
       logger.error("Register error:", error);
       set((state) => ({

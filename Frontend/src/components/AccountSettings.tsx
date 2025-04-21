@@ -9,7 +9,9 @@ const AccountSettings = () => {
   const { user, setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    userName: user?.userName || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     email: user?.email || '',
     currentPassword: '',
     newPassword: '',
@@ -34,9 +36,10 @@ const AccountSettings = () => {
         }
       }
 
-      const response = await api.post('/user/update', {
-        name: formData.name,
-        email: formData.email,
+      const response = await api.put(`/users/${user?.id}`, {
+        userName: formData.userName,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
@@ -51,8 +54,9 @@ const AccountSettings = () => {
         newPassword: '',
         confirmPassword: '',
       }));
-    } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la mise à jour du profil');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la mise à jour du profil';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -68,11 +72,31 @@ const AccountSettings = () => {
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
+          <label className="block text-sm font-medium mb-2">Nom d'utilisateur</label>
+          <input
+            type="text"
+            name="userName"
+            value={formData.userName}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
           <label className="block text-sm font-medium mb-2">Nom</label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Prénom</label>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
           />
@@ -83,6 +107,7 @@ const AccountSettings = () => {
           <input
             type="email"
             name="email"
+            disabled={true}
             value={formData.email}
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"

@@ -1,9 +1,11 @@
-import { Router } from "express";
+import express from 'express';
 import { UserController } from "../controllers/userController";
 import { authenticate } from "../config/authServer";
 
-const userRouter = Router();
+const userRouter = express.Router();
 
+// Route protégée pour récupérer l'utilisateur actuel
+userRouter.get("/me", authenticate, UserController.getCurrentUser);
 userRouter.get("/", UserController.getAllUsers);
 userRouter.get("/:id", UserController.getUserById);
 userRouter.post("/", UserController.createUser);

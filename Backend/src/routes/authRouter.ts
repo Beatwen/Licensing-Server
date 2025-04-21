@@ -19,6 +19,7 @@ const oauth = new OAuth2Server({
 
 const authRouter = Router();
 
+
 authRouter.get(
   "/confirm-email",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

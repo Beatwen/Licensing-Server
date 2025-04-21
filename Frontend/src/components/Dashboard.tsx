@@ -17,7 +17,7 @@ const Dashboard = () => {
     const fetchLicenses = async () => {
       try {
         logger.info("Fetching licenses...");
-        const response = await api.get('/licenses');
+        const response = await api.get(`/licenses/${user?.id}`);
         logger.info("Licenses fetched successfully:", response.data);
         setLicenses(response.data);
       } catch (error) {
@@ -28,7 +28,7 @@ const Dashboard = () => {
     };
 
     fetchLicenses();
-  }, []);
+  }, [user?.id]);
 
   if (isLoading) {
     return (
@@ -64,7 +64,7 @@ const Dashboard = () => {
                     className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">Licence {license.key}</span>
+                      <span className="font-medium">Licence </span>
                       <span className={`px-2 py-1 rounded-full text-sm ${
                         license.status === 'active'
                           ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
@@ -75,6 +75,9 @@ const Dashboard = () => {
                         {license.status}
                       </span>
                     </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Clé: {license.licenseKey}
+                    </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Type: {license.type}
                     </p>

@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Radio, Github, Twitter, Linkedin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -20,27 +23,90 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Liens rapides</h3>
             <ul className="space-y-2">
-              <li><a href="#features" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Fonctionnalités</a></li>
-              <li><a href="#demo" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Démo</a></li>
-              <li><a href="#pricing" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Tarifs</a></li>
+              <li>
+                <button
+                  onClick={() => navigate('/#features')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Fonctionnalités
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/#demo')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Démo
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/#pricing')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Tarifs
+                </button>
+              </li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
-              <li><a href="#contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Contact</a></li>
-              <li><a href="#faq" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">FAQ</a></li>
-              <li><a href="#support" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Support technique</a></li>
+              <li>
+                <button
+                  onClick={() => navigate('/#contact')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Contact
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/#faq')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  FAQ
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/#support')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Support technique
+                </button>
+              </li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Légal</h3>
             <ul className="space-y-2">
-              <li><a href="#privacy" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Confidentialité</a></li>
-              <li><a href="#terms" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Conditions</a></li>
-              <li><a href="#mentions" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Mentions légales</a></li>
+              <li>
+                <button
+                  onClick={() => navigate('/#privacy')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Confidentialité
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/#terms')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Conditions
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/#mentions')}
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                >
+                  Mentions légales
+                </button>
+              </li>
             </ul>
           </div>
         </div>

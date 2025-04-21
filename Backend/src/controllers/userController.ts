@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
+import { AuthenticatedRequest } from "../types/custom";
 import { User } from "../models/user";
 import License from "../models/licensing";
 import { generateConfirmationToken } from "../utils/tokenUtils";
 import { sendConfirmationEmail } from "../utils/emailUtils";
 import { createFreeLicense } from "./licenseController";
 import { createUserUtil } from "../utils/userUtils";
-
+import bcrypt from "bcrypt";
 
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
@@ -56,12 +57,18 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 // Mettre à jour un utilisateur
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const { lastName, firstName,userName, email, password } = req.body;
-
+  const { lastName, firstName,userName, email, newPassword, currentPassword } = req.body;
+  
+  console.log("req.body", req.body);
   try {
     const user = await User.findByPk(id);
     if (user) {
-      await user.update({ lastName, firstName,userName, email, password });
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (isPasswordValid) {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await user.update({ password: hashedPassword });
+      }
+      await user.update({ lastName, firstName,userName, email });
       res.json(user);
     } else {
       res.status(404).json({ error: "User not found" });
@@ -87,10 +94,36 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+export const getCurrentUser = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.sub;
+        
+        if (!userId) {
+            res.status(401).json({ error: "User not authenticated" });
+            return;
+        }
+
+        const user = await User.findByPk(userId, {
+            attributes: { exclude: ['password'] }
+        });
+
+        if (!user) {
+            res.status(404).json({ error: "User not found" });
+            return;
+        }
+
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error("Error fetching current user:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 export const UserController = {
     createUser,
     getAllUsers,
     getUserById,
     updateUser,
     deleteUser,
+    getCurrentUser,
   };
