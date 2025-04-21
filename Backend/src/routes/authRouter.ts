@@ -10,6 +10,7 @@ import { UniqueConstraintError } from "sequelize";
 import { createUserUtil } from "../utils/userUtils"; 
 import OAuth2Server, { Request as OAuthRequest, Response as OAuthResponse } from "oauth2-server"; 
 import oAuthModel from "../models/oauth/oAuth";
+import jwt from 'jsonwebtoken';
 
 const oauth = new OAuth2Server({
   model: oAuthModel,
@@ -52,6 +53,7 @@ authRouter.post(
   async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     const deviceId = req.header("X-DEVICE-ID");
+    console.log("deviceId", deviceId);
 
     if (!email || !password) {
       res.status(400).json({ error: "Email and password are required" });
@@ -60,7 +62,6 @@ authRouter.post(
 
     try {
       const user = await User.findOne({ where: { email } });
-
       if (!user) {
         res.status(404).json({ error: "User not found." });
         return;
@@ -72,10 +73,24 @@ authRouter.post(
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log("isPasswordValid", isPasswordValid);
       if (!isPasswordValid) {
         res.status(401).json({ error: "Invalid password." });
         return;
       }
+
+      // Get the client credentials for this user
+      const client = await Client.findOne({ where: { userId: user.id } });
+      if (!client) {
+        res.status(500).json({ error: "No OAuth client found for user" });
+        return;
+      }
+
+      // Add client credentials to the request
+      req.body.client_id = client.clientOauthId;
+      req.body.client_secret = client.clientSecret;
+      req.body.grant_type = 'password';
+      req.body.username = email;
 
       const request = new OAuthRequest(req);
       const response = new OAuthResponse(res);
@@ -99,13 +114,19 @@ authRouter.post(
           redirectTo = "/index";
         }
       }
-
+      console.log("token", token);
+      console.log("user", user);
+      console.log("success");
       // Login successful
       res.status(200).json({
         message: "Login successful!",
         user: user,
         token: token,
         redirectTo,
+        client: {
+          clientId: client.clientOauthId,
+          clientSecret: client.clientSecret
+        }
       });
     } catch (error) {
       console.error("Error during login:", error);
@@ -223,4 +244,65 @@ authRouter.post("/logout", async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
+// Add refresh token endpoint
+authRouter.post("/refresh", async (req: Request, res: Response): Promise<void> => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    res.status(400).json({ error: "Refresh token is required" });
+    return;
+  }
+
+  try {
+    const tokenRecord = await RefreshToken.findOne({ 
+      where: { refreshToken },
+      include: [
+        { model: Client, as: 'Client' },
+        { model: User, as: 'User' }
+      ]
+    });
+
+    if (!tokenRecord) {
+      res.status(401).json({ error: "Invalid refresh token" });
+      return;
+    }
+
+    // Check if refresh token is expired
+    if (tokenRecord.refreshTokenExpiresAt && new Date(tokenRecord.refreshTokenExpiresAt) < new Date()) {
+      res.status(401).json({ error: "Refresh token expired" });
+      return;
+    }
+
+    // Generate new access token
+    const accessTokenPayload = {
+      sub: tokenRecord.User?.id,
+      client_id: tokenRecord.Client?.clientOauthId,
+      scope: 'all',
+    };
+    
+    const jwtSecret = process.env.JWT_SECRET_KEY;
+    if (!jwtSecret) {
+      res.status(500).json({ error: "JWT_SECRET_KEY is not defined" });
+      return;
+    }
+    
+    const newAccessToken = jwt.sign(accessTokenPayload, jwtSecret, { expiresIn: '1h' });
+    
+    // Update access token in database
+    await tokenRecord.update({
+      accessToken: newAccessToken,
+      accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000), // 1 hour from now
+    });
+
+    res.status(200).json({ 
+      token: newAccessToken,
+      message: "Token refreshed successfully" 
+    });
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default authRouter;

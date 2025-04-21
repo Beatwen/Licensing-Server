@@ -1,0 +1,14 @@
+{
+  "name": "licensing-server",
+  "version": "1.0.0",
+  "description": "Licensing Server with Frontend and Backend",
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd Backend && npm run dev",
+    "start:frontend": "cd Frontend && npm run dev",
+    "install:all": "npm install && cd Backend && npm install && cd ../Frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

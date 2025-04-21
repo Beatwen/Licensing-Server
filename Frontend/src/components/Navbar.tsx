@@ -1,0 +1,234 @@
+import React, { useState, useEffect } from 'react';
+import { Menu, X, Sun, Moon, Radio, LogOut, User, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import AuthModal from './AuthModal';
+import { useAuthStore } from '../store/authStore';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDark(darkMode);
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDark(!isDark);
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('darkMode', (!isDark).toString());
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+      toast.success('Déconnexion réussie');
+    } catch (error) {
+      toast.error('Erreur lors de la déconnexion');
+    }
+    setShowUserMenu(false);
+  };
+
+  return (
+    <nav className="fixed w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Radio className="h-8 w-8 text-blue-600" />
+            <span className="ml-2 text-xl font-bold">RF_Go</span>
+          </div>
+          
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              <a href="#features" className="hover:text-blue-600 px-3 py-2">Fonctionnalités</a>
+              <a href="#demo" className="hover:text-blue-600 px-3 py-2">Démo</a>
+              <a href="#pricing" className="hover:text-blue-600 px-3 py-2">Tarifs</a>
+              <a href="#contact" className="hover:text-blue-600 px-3 py-2">Contact</a>
+              
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <span>{user.name || user.email}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="fixed inset-0"
+                          onClick={() => setShowUserMenu(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1"
+                        >
+                          <button
+                            onClick={() => {
+                              navigate('/dashboard');
+                              setShowUserMenu(false);
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Tableau de bord
+                          </button>
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <LogOut className="h-4 w-4 mr-2" />
+                            Déconnexion
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => setShowLoginModal(true)}
+                    className="ml-4 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+                  >
+                    Connexion
+                  </button>
+                  
+                  <button 
+                    onClick={() => setShowRegisterModal(true)}
+                    className="px-4 py-2 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-800 transition"
+                  >
+                    Inscription
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={toggleDarkMode}
+                className="ml-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden"
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              <a href="#features" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Fonctionnalités</a>
+              <a href="#demo" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Démo</a>
+              <a href="#pricing" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Tarifs</a>
+              <a href="#contact" className="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Contact</a>
+              
+              {user ? (
+                <>
+                  <button
+                    onClick={() => {
+                      navigate('/dashboard');
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center w-full px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Tableau de bord
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-3 py-2 rounded-md text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Déconnexion
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      setShowLoginModal(true);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    Connexion
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      setShowRegisterModal(true);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    Inscription
+                  </button>
+                </>
+              )}
+              
+              <button
+                onClick={toggleDarkMode}
+                className="w-full flex items-center px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                {isDark ? (
+                  <>
+                    <Sun className="h-5 w-5 mr-2" /> Mode clair
+                  </>
+                ) : (
+                  <>
+                    <Moon className="h-5 w-5 mr-2" /> Mode sombre
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AuthModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        type="login"
+      />
+      <AuthModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        type="register"
+      />
+    </nav>
+  );
+};
+
+export default Navbar;

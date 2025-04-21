@@ -16,6 +16,7 @@ import deviceRouter from "./routes/deviceRouter";
 import Client from "./models/client";
 import AccessToken from "./models/oauth/accessToken";
 import RefreshToken from "./models/oauth/refreshToken";
+import logRouter from "./routes/logRouter";
 
 const startServer = async () => {
   try {
@@ -51,20 +52,32 @@ const startServer = async () => {
 
     // Initialisation du serveur Express
     const app = express();
-    app.use(cors());
+    
+    // Configure CORS to allow requests from the frontend
+    app.use(cors({
+      origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+      credentials: true
+    }));
+    
     app.use(express.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
 
     function validateApiKey(req: Request, res: Response, next: NextFunction): void {
-      const apiKey = req.headers['x-api-key'];
-
+      // Skip API key validation for logs endpoint
+      if (req.path.startsWith("/logs")) {
+        return next();
+      }
+      
+      // Skip API key validation for email confirmation
       if (req.path.startsWith("/auth/confirm-email")) {
         return next(); 
       }
 
+      const apiKey = req.headers['x-api-key'];
+
       if (!apiKey || apiKey !== process.env.API_KEY) {
-          res.status(403).json({ error: "Clé API invalide." });
+          res.status(403).json({ error: "Invalid API key." });
           return;
       }
 
@@ -79,6 +92,7 @@ const startServer = async () => {
     app.use("/users", authenticate, userRouter);
     app.use("/licenses", authenticate, licenseRouter);
     app.use("/devices", authenticate, deviceRouter);
+    app.use("/logs", logRouter);
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Server is running at http://localhost:${PORT}`);
