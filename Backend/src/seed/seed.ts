@@ -12,6 +12,7 @@ export const seedUsers = async () => {
         lastName: "Wonderland",
         email: "alice@example.com",
         password: "password123",
+        isAdmin: false,
       },
       {
         userName: "bob@example.com",
@@ -19,6 +20,7 @@ export const seedUsers = async () => {
         lastName: "Builder",
         email: "bob@example.com",
         password: "password123",
+        isAdmin: false,
       },
       {
         userName: "charlie@example.com",
@@ -26,6 +28,7 @@ export const seedUsers = async () => {
         lastName: "Chocolate",
         email: "charlie@example.com",
         password: "password123",
+        isAdmin: false,
       },
     ];
   

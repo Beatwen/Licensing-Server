@@ -52,6 +52,7 @@ const addUser = async () => {
       firstName,
       lastName,
       email,
+      isAdmin: true,
       password,
       confirmationToken: null,
     });
