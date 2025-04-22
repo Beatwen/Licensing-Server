@@ -1,6 +1,7 @@
 .env
 # Node.js
 node_modules/
+.dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -49,3 +50,5 @@ nyc_output/
 *.pid
 *.seed
 *.pid.lock
+
+security_todo.txt

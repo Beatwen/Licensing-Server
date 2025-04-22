@@ -1,13 +1,17 @@
-import { Router } from "express";
+import express from 'express';
 import { UserController } from "../controllers/userController";
-import { authenticate } from "../config/authServer";
+import { authenticate, isAdmin, isOwnerOrAdmin } from "../config/authServer";
 
-const userRouter = Router();
+const userRouter = express.Router();
 
-userRouter.get("/", UserController.getAllUsers);
-userRouter.get("/:id", UserController.getUserById);
-userRouter.post("/", UserController.createUser);
-userRouter.put("/:id", UserController.updateUser);
-userRouter.delete("/:id", UserController.deleteUser);
+// Routes protégées pour utilisateur normal
+userRouter.get("/me", authenticate, UserController.getCurrentUser);
+userRouter.post("/", UserController.createUser); 
+userRouter.put("/:id", authenticate, isOwnerOrAdmin, UserController.updateUser);
+userRouter.delete("/:id", authenticate, isOwnerOrAdmin, UserController.deleteUser);
+
+// Routes protégées pour admin uniquement
+userRouter.get("/", authenticate, isAdmin, UserController.getAllUsers);
+userRouter.get("/:id", authenticate, isAdmin, UserController.getUserById);
 
 export default userRouter;

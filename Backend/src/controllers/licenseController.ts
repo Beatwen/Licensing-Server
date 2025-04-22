@@ -53,7 +53,22 @@ export const activateAndValidateLicense = async (req: Request, res: Response): P
     }
 };
 
-
+export const getUserLicenses = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    if (!id) {
+        res.status(400).json({ error: "Missing user key." });
+        return;
+    }
+    const licenses = await License.findAll({ 
+        where: { userId: id },
+        include: [{
+            model: Device,
+            as: 'devices'
+        }]
+    });
+    
+    res.status(200).json(licenses);
+}
 export const validateLicense = async (req: Request, res: Response): Promise<void> => {
     
     const userKey = req.header("X-USER-KEY");
@@ -201,9 +216,32 @@ export const createFreeLicense = async (userId: number): Promise<License> => {
     return freeLicense;
 };
 
+export const deleteDevice = async (req: Request, res: Response): Promise<void> => {
+    const { deviceId, licenseId } = req.params;
+
+    try {
+        const device = await Device.findOne({
+            where: { deviceId, licenseId }
+        });
+
+        if (!device) {
+            res.status(404).json({ error: "Device not found." });
+            return;
+        }
+
+        await device.destroy();
+        res.status(200).json({ message: "Device deleted successfully." });
+    } catch (error) {
+        console.error("Error deleting device:", error);
+        res.status(500).json({ error: "Internal server error." });
+    }
+};
+
 export const LicenseController = {
     validateLicense,
     activateAndValidateLicense,
     activateLicense,
     buyLicense,
+    getUserLicenses,
+    deleteDevice,
 }

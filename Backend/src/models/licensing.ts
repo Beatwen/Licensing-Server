@@ -1,18 +1,16 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db";
 import { User } from "./user";
-import { LicensingAttributes } from "../types/licenseTypes";
+import { LicensingAttributes, LicensingCreationAttributes } from "../types/licenseTypes";
 import Device from "./device"; // Importez le modèle Device
 
-interface LicenseCreationAttributes
-  extends Omit<LicensingAttributes, "id"> {}
-
-class License extends Model<LicensingAttributes, LicenseCreationAttributes> {
+class License extends Model<LicensingAttributes, LicensingCreationAttributes> {
   public id!: number;
   public type!: string;
   public userId!: number;
   public licenseKey!: string;
   public status!: string;
+  public devices?: Device[]; // Déclaration de la propriété devices
 
   static initialize(sequelizeInstance: typeof sequelize) {
     License.init(
