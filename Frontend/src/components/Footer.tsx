@@ -1,10 +1,17 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Radio, Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import logoLight from '../assets/images/RFGo-Logo.svg';
+import logoDark from '../assets/images/RFGo-Logo-dark.svg';
 
 const Footer = () => {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDark(darkMode);
+  }, []);
 
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
@@ -12,8 +19,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
             <div className="flex items-center">
-              <Radio className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold">RF_Go</span>
+              <img 
+                src={isDark ? logoDark : logoLight}
+                alt="RF_Go Logo"
+                className="h-12"
+              />
             </div>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               La solution professionnelle pour la gestion des fréquences sans fil.

@@ -12,8 +12,14 @@ import MobileCTA from './components/MobileCTA';
 import Dashboard from './components/Dashboard';
 import PricingPlans from './components/PricingPlans';
 import VerifyEmail from './pages/VerifyEmail';
+import LoginPage from './pages/LoginPage';
 import { useAuthStore } from './store/authStore';
 import { logger } from './utils/logger';
+
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuthStore();
+  return user ? <>{children}</> : <Navigate to="/login" />;
+};
 
 function App() {
   const { user, initialize } = useAuthStore();
@@ -52,20 +58,16 @@ function App() {
       <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
         <Navbar />
         <Routes>
-          <Route path="/" element={
-            <>
-              <Hero />
-              <Features />
-              <Architecture />
-              <PricingPlans />
-              <Testimonials />
-              <FAQ />
-            </>
-          } />
+          <Route path="/login" element={<LoginPage />} />
           <Route
             path="/dashboard"
-            element={user ? <Dashboard /> : <Navigate to="/" replace />}
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
           />
+          <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
         <Footer />

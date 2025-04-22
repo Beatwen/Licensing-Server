@@ -17,6 +17,9 @@ import Client from "./models/client";
 import AccessToken from "./models/oauth/accessToken";
 import RefreshToken from "./models/oauth/refreshToken";
 import logRouter from "./routes/logRouter";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
 
 const startServer = async () => {
   try {
@@ -40,9 +43,6 @@ const startServer = async () => {
     AccessToken.associate();
     RefreshToken.associate();
 
-    
-    
-
     // Synchronisation Sequelize
     await sequelize.sync({ alter: true });
     console.log("Database synchronized.");
@@ -52,6 +52,38 @@ const startServer = async () => {
 
     // Initialisation du serveur Express
     const app = express();
+    
+    // Configuration de la sécurité
+    app.use(helmet());
+    app.use(helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        imgSrc: ["'self'"],
+        connectSrc: ["'self'"],
+      },
+    }));
+
+    // Configuration du rate limiting
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 1000, // limite chaque IP à 100 requêtes par fenêtre
+      message: "Too many requests from this IP, please try again later."
+    });
+    app.use(limiter);
+
+    // Configuration des cookies
+    app.use(cookieParser());
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      res.cookie('session', 'value', {
+        secure: true,
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: 3600000 // 1 heure
+      });
+      next();
+    });
     
     // Configure CORS to allow requests from the frontend
     app.use(cors({
@@ -93,6 +125,7 @@ const startServer = async () => {
     app.use("/licenses", authenticate, licenseRouter);
     app.use("/devices", authenticate, deviceRouter);
     app.use("/logs", logRouter);
+
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Server is running at http://localhost:${PORT}`);

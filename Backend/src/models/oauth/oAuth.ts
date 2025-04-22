@@ -94,20 +94,48 @@ const oAuthModel = {
   },
 
   getAccessToken: async (accessToken: string) => {
-    const token = await AccessToken.findOne({ where: { accessToken } });
-    if (!token) {
+    console.log("getAccessToken called with token:", accessToken);
+    
+    try {
+      // Vérifier si le token est un JWT valide
+      const jwtSecret = process.env.JWT_SECRET_KEY;
+      if (!jwtSecret) {
+        console.error("JWT_SECRET_KEY is not defined");
+        return null;
+      }
+      
+      try {
+        const decoded = jwt.verify(accessToken, jwtSecret);
+        console.log("JWT token decoded successfully:", decoded);
+      } catch (jwtError) {
+        console.error("JWT verification failed:", jwtError);
+      }
+      
+      const token = await AccessToken.findOne({ where: { accessToken } });
+      console.log("Token found in database:", token ? "Yes" : "No");
+      
+      if (!token) {
+        return null;
+      }
+      
+      const client = await Client.findOne({ where: { id: token.clientId } });
+      console.log("Client found:", client ? "Yes" : "No");
+      
+      if (!client) {
+        return null;
+      }
+      
+      console.log("Returning token data for authentication");
+      return {
+        accessToken: token.accessToken,
+        accessTokenExpiresAt: token.accessTokenExpiresAt,
+        client: { id: client.clientOauthId, grants: client.grants }, // Inclure grants
+        user: { id: token.userId }, 
+      };
+    } catch (error) {
+      console.error("Error in getAccessToken:", error);
       return null;
     }
-    const client = await Client.findOne({ where: { id: token.clientId } });
-    if (!client) {
-      return null;
-    }
-    return {
-      accessToken: token.accessToken,
-      accessTokenExpiresAt: token.accessTokenExpiresAt,
-      client: { id: client.clientOauthId, grants: client.grants }, // Inclure grants
-      user: { id: token.userId }, 
-    };
   },
 
   getRefreshToken: async (refreshToken: string) => {

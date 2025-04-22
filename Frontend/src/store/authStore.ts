@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '../types/auth';
+import { User } from '../types/types';
 import api from '../utils/api';
 import { logger } from '../utils/logger';
 
@@ -35,20 +35,48 @@ export const useAuthStore = create<AuthState>((set) => ({
     const clientId = localStorage.getItem('clientId');
     const clientSecret = localStorage.getItem('clientSecret');
     
+    // Log all available tokens
+    logger.info("Initialize auth store with tokens:", {
+      hasToken: !!token,
+      hasRefreshToken: !!refreshToken,
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      tokenFirstChars: token ? token.substring(0, 15) + '...' : 'none'
+    });
+    
     // If we don't have all required tokens, clear the user state
     if (!token || !refreshToken || !clientId || !clientSecret) {
-      logger.info("Missing tokens during initialization");
+      logger.info("Missing tokens during initialization - clearing user state");
       set((state) => ({ ...state, user: null }));
       return;
     }
 
     try {
-      logger.info("Validating user session");
+      logger.info("Validating user session - sending request to /users/me");
       const response = await api.get('/users/me');
-      logger.info("User session validated", response.data);
+      logger.info("User session validated", {
+        status: response.status,
+        hasData: !!response.data,
+        hasUser: !!response.data?.user,
+        userData: response.data?.user ? {
+          id: response.data.user.id,
+          email: response.data.user.email
+        } : null
+      });
       set((state) => ({ ...state, user: response.data.user }));
     } catch (error: unknown) {
       logger.error("Failed to validate user session:", error);
+      
+      // Log more detailed error information
+      if (error && typeof error === 'object' && 'response' in error) {
+        const responseError = error.response as { status?: number; data?: unknown };
+        logger.error("Error details:", {
+          status: responseError?.status,
+          data: responseError?.data,
+        });
+      }
+      
+      logger.info("Clearing user state and tokens due to validation failure");
       set((state) => ({ ...state, user: null }));
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -107,9 +135,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         ...userData
       });
       logger.info("Register response", response.data);
-      
-      // On ne stocke plus les tokens ni ne définissons l'utilisateur
-      // car l'email doit être vérifié d'abord
       set((state) => ({ ...state, isLoading: false }));
     } catch (error: unknown) {
       logger.error("Register error:", error);

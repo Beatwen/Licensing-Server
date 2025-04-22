@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader, Save } from 'lucide-react';
+import { Loader, Save, Trash2 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const AccountSettings = () => {
   const { user, setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     userName: user?.userName || '',
     firstName: user?.firstName || '',
@@ -59,6 +63,29 @@ const AccountSettings = () => {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Veuillez entrer votre mot de passe pour confirmer la suppression');
+      return;
+    }
+    try {
+      setIsLoading(true);
+      await api.delete(`/users/${user?.id}`, {
+        data: { password: deletePassword }
+      });
+      toast.success('Compte supprimé avec succès');
+      setUser(null);
+      navigate('/login');
+    } catch (error: unknown) {
+      console.log(error);
+      toast.error(error.response ? error.response.data.error : 'Erreur lors de la suppression du compte');
+    } finally {
+      setIsLoading(false);
+      setShowDeleteModal(false);
+      setDeletePassword('');
     }
   };
 
@@ -153,7 +180,7 @@ const AccountSettings = () => {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-between">
           <button
             type="submit"
             disabled={isLoading}
@@ -168,8 +195,60 @@ const AccountSettings = () => {
               </>
             )}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200 flex items-center space-x-2"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span>Supprimer le compte</span>
+          </button>
         </div>
       </form>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-4">Confirmer la suppression</h3>
+            <p className="mb-6 text-gray-600 dark:text-gray-400">
+              Cette action est irréversible. Toutes vos données seront supprimées définitivement.
+              Veuillez entrer votre mot de passe pour confirmer.
+            </p>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Mot de passe</label>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletePassword('');
+                }}
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isLoading}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <Loader className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Supprimer définitivement'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

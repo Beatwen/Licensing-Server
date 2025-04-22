@@ -11,12 +11,19 @@ export interface License {
   id: string;
   licenseKey: string;
   status: 'active' | 'inactive' | 'expired';
+  devices: Device[];
   activatedAt?: string;
   expiresAt?: string;
   type: 'free' | 'basic' | 'pro' | 'trial';
   price?: number;
 }
 
+export interface Device {
+  id: string;
+  deviceId: string;
+  createdAt: string;
+  name?: string;
+}
 export interface AuthResponse {
   user: User;
   token: string;

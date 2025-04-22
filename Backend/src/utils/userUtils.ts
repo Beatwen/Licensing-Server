@@ -13,6 +13,7 @@ export const createUserUtil = async (userName: string, firstName: string, lastNa
     email,
     password: password,
     confirmationToken,
+    isAdmin: false,
   });
 
   // Créez une licence gratuite pour l'utilisateur

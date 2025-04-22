@@ -50,3 +50,5 @@ nyc_output/
 *.pid
 *.seed
 *.pid.lock
+
+security_todo.txt

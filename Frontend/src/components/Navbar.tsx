@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Sun, Moon, Radio, LogOut, User, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X, Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AuthModal from './AuthModal';
 import RegisterModal from './RegisterModal';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'react-hot-toast';
+import logoLight from '../assets/images/RFGo-Logo.svg';
+import logoDark from '../assets/images/RFGo-Logo-dark.svg';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,8 +49,11 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Radio className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold">RF_Go</span>
+              <img 
+                src={isDark ? logoDark : logoLight} 
+                alt="RF_Go Logo" 
+                className="h-12"
+              />
             </div>
             
             <div className="hidden md:block">
@@ -145,7 +150,7 @@ const Navbar = () => {
 
                 <button
                   onClick={toggleDarkMode}
-                  className="ml-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center my-auto"
                 >
                   {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </button>

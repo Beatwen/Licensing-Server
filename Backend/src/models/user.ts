@@ -20,6 +20,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
   public emailConfirmed!: boolean;
   public confirmationToken!: string | null;
   public password!: string;
+  public isAdmin!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
@@ -58,6 +59,11 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
         confirmationToken: {
           type: DataTypes.STRING,
           allowNull: true,
+        },
+        isAdmin: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {
