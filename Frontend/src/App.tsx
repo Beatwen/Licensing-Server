@@ -58,7 +58,17 @@ function App() {
       <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
         <Navbar />
         <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Hero />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/architecture" element={<Architecture />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+
+          {/* Protected Routes */}
           <Route
             path="/dashboard"
             element={
@@ -67,8 +77,6 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
         <Footer />
         <MobileCTA />
