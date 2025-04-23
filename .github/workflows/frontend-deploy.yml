@@ -35,10 +35,10 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            sudo rm -rf /var/www/licensing/frontend/*
-            sudo mkdir -p /var/www/licensing/frontend
-            sudo chown -R ${{ secrets.SERVER_USERNAME }}:www-data /var/www/licensing/frontend
-            sudo chmod -R 775 /var/www/licensing/frontend
+            sudo rm -rf /var/www/html/licensing/*
+            sudo mkdir -p /var/www/html/licensing
+            sudo chown -R ${{ secrets.SERVER_USERNAME }}:www-data /var/www/html/licensing
+            sudo chmod -R 775 /var/www/html/licensing
           
       - name: Deploy to server
         uses: appleboy/scp-action@master
@@ -47,8 +47,9 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: "Frontend/dist/*"
-          target: "/var/www/licensing/frontend/"
+          target: "/var/www/html/licensing/"
           strip_components: 1
+          overwrite: true
           
       - name: Set permissions and restart Apache
         uses: appleboy/ssh-action@master
