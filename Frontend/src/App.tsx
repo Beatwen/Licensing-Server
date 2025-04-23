@@ -59,12 +59,16 @@ function App() {
         <Navbar />
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Hero />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/architecture" element={<Architecture />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/pricing" element={<PricingPlans />} />
+          <Route path="/" element={
+            <>
+              <Hero />
+              <Features />
+              <Architecture />
+              <PricingPlans />
+              <Testimonials />
+              <FAQ />
+            </>
+          } />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
 
