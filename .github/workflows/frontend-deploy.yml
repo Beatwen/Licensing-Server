@@ -38,16 +38,36 @@ jobs:
           target: "/var/www/licensing/Licensing-Server/Frontend/dist/"
           strip_components: 2
           
-      - name: Configure Apache (if needed)
+      - name: Configure Apache
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # Ensure Apache is properly configured for the frontend
-            # This is only needed if you need to modify Apache settings
-            # sudo systemctl reload apache2
+            # Set proper permissions for the deployed files
+            chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist
+            
+            # Create .htaccess file for SPA routing
+            cat > /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess << 'EOL'
+            <IfModule mod_rewrite.c>
+              RewriteEngine On
+              RewriteBase /
+              RewriteRule ^index\.html$ - [L]
+              RewriteCond %{REQUEST_FILENAME} !-f
+              RewriteCond %{REQUEST_FILENAME} !-d
+              RewriteRule . /index.html [L]
+            </IfModule>
+            EOL
+            
+            # Reload Apache to apply changes
+            sudo systemctl reload apache2
+            
+            # Verify deployment
+            echo "===== DEPLOYMENT VERIFICATION ====="
+            echo "Checking deployed files:"
+            ls -la /var/www/licensing/Licensing-Server/Frontend/dist/
+            echo "=============================="
 
       - name: Cache busting (if needed)
         uses: appleboy/ssh-action@master
