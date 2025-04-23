@@ -14,7 +14,7 @@ const Hero = () => {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
-              Prenez le contrôle de vos fréquences!
+              Prenez le contrôle de vos fréquences.
               <span className="text-blue-600"> Partout. Sans compromis.</span>
             </h1>
             

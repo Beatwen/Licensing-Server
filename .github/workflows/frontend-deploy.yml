@@ -7,6 +7,21 @@ on:
       - 'Frontend/**'
       - '.github/workflows/frontend-deploy.yml'
 
+env:
+  # API Configuration
+  VITE_API_URL: ${{ secrets.VITE_API_URL }}
+  VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+  
+  # Frontend Configuration
+  VITE_APP_NAME: ${{ secrets.VITE_APP_NAME }}
+  VITE_APP_URL: ${{ secrets.VITE_APP_URL }}
+  
+  # Authentication Configuration
+  VITE_JWT_EXPIRES_IN: ${{ secrets.VITE_JWT_EXPIRES_IN }}
+  
+  # Email Configuration
+  VITE_EMAIL_FROM: ${{ secrets.VITE_EMAIL_FROM }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,6 +41,28 @@ jobs:
       - name: Build
         run: |
           cd Frontend
+          # Create a temporary .env file for build
+          cat > .env << 'EOL'
+          # API Configuration
+          VITE_API_URL=$VITE_API_URL
+          VITE_API_KEY=$VITE_API_KEY
+          
+          # Frontend Configuration
+          VITE_APP_NAME=$VITE_APP_NAME
+          VITE_APP_URL=$VITE_APP_URL
+          
+          # Authentication Configuration
+          VITE_JWT_EXPIRES_IN=$VITE_JWT_EXPIRES_IN
+          
+          # Email Configuration
+          VITE_EMAIL_FROM=$VITE_EMAIL_FROM
+          EOL
+          
+          # Verify .env was created correctly
+          echo "===== ENVIRONMENT VARIABLES ====="
+          cat .env
+          echo "=============================="
+          
           npm run build
           
       - name: Deploy to server
