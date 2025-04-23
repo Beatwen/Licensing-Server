@@ -44,6 +44,6 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            sudo chown -R www-data:www-data /var/www/licensing/frontend
-            sudo chmod -R 755 /var/www/licensing/frontend
-            sudo systemctl restart apache2 
+            chown -R www-data:www-data /var/www/licensing/frontend
+            chmod -R 755 /var/www/licensing/frontend
+            systemctl restart apache2 
