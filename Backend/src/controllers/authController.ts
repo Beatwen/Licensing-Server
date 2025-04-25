@@ -156,7 +156,6 @@ export class AuthController {
         grants,
         userId: newUser.id,
       });
-
       res.status(201).json({
         message: "User and client registered successfully",
         user: newUser,
@@ -263,6 +262,22 @@ export class AuthController {
 
       const newAccessToken = jwt.sign(accessTokenPayload, jwtSecret, { expiresIn: '1h' });
 
+      // Generate new refresh token
+      const newRefreshToken = uuidv4();
+      const refreshTokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      // Create new refresh token record
+      await RefreshToken.create({
+        refreshToken: newRefreshToken,
+        refreshTokenExpiresAt,
+        clientId: tokenRecord.clientId,
+        oauthClientId: tokenRecord.Client.clientOauthId,
+        userId: tokenRecord.userId
+      });
+
+      // Delete old refresh token
+      await RefreshToken.destroy({ where: { refreshToken } });
+
       await AccessToken.upsert({
         accessToken: newAccessToken,
         accessTokenExpiresAt: new Date(Date.now() + 3600 * 1000),
@@ -272,8 +287,9 @@ export class AuthController {
       });
 
       res.status(200).json({
-        token: newAccessToken,
-        message: "Token refreshed successfully"
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        message: "Tokens refreshed successfully"
       });
     } catch (error) {
       console.error("Error refreshing token:", error);
