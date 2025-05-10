@@ -23,7 +23,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 
 export async function sendConfirmationEmail(to: string, token: string, freeLicense: License): Promise<void> {
     console.log("Sending confirmation email to:", process.env.EMAIL_USER);
-    const confirmationUrl = `http://localhost:3000/auth/confirm-email?token=${token}`;
+    const confirmationUrl = `${process.env.APP_URL}/auth/confirm-email?token=${token}`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,

@@ -72,7 +72,7 @@ const oAuthModel = {
     if (!jwtRefreshSecret) {
       throw new Error("JWT_REFRESH_SECRET_KEY is not defined");
     }
-    const refreshToken = jwt.sign(refreshTokenPayload, jwtRefreshSecret, { expiresIn: '14d' }); // You can set a very long expiration time here
+    const refreshToken = jwt.sign(refreshTokenPayload, jwtRefreshSecret, { expiresIn: '365d' }); 
     const refreshTokenData = {
       refreshToken: refreshToken,
       refreshTokenExpiresAt: token.refreshTokenExpiresAt || null, 
