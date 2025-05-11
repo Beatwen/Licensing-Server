@@ -19,6 +19,8 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
   public email!: string;
   public emailConfirmed!: boolean;
   public confirmationToken!: string | null;
+  public resetPasswordToken!: string | null;
+  public resetPasswordExpires!: Date | null;
   public password!: string;
   public isAdmin!: boolean;
   public readonly createdAt!: Date;
@@ -60,6 +62,14 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
           type: DataTypes.STRING,
           allowNull: true,
         },
+        resetPasswordToken: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        resetPasswordExpires: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
         isAdmin: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
@@ -84,7 +94,10 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
           beforeUpdate: async (user) => {
             if (user.password && user.changed("password")) {
               const saltRounds = 10;
-              user.password = await bcrypt.hash(user.password, saltRounds);
+              console.log("Hashing password in beforeUpdate hook for user:", user.email);
+              const plainPassword = user.password;
+              user.password = await bcrypt.hash(plainPassword, saltRounds);
+              console.log("Password hashed successfully in hook");
             };
           }
         },

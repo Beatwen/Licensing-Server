@@ -13,6 +13,9 @@ import Dashboard from './components/Dashboard';
 import PricingPlans from './components/PricingPlans';
 import VerifyEmail from './pages/VerifyEmail';
 import LoginPage from './pages/LoginPage';
+import ConfirmEmail from './pages/ConfirmEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import { useAuthStore } from './store/authStore';
 import { logger } from './utils/logger';
 
@@ -71,6 +74,9 @@ function App() {
           } />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/auth/confirm-email" element={<ConfirmEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Protected Routes */}
           <Route

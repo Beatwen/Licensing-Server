@@ -6,6 +6,8 @@ export interface UserAttributes {
     email: string;
     emailConfirmed: boolean;
     confirmationToken: string | null;
+    resetPasswordToken: string | null;
+    resetPasswordExpires: Date | null;
     password: string;
     createdAt?: Date;
     updatedAt?: Date;

@@ -38,3 +38,22 @@ export async function sendConfirmationEmail(to: string, token: string, freeLicen
     };
     await transporter.sendMail(mailOptions);
 }
+
+export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
+    console.log("Sending password reset email to:", to);
+    const resetUrl = `${process.env.APP_URL}/reset-password?token=${token}`;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to,
+        subject: "Password Reset Request",
+        html: `
+            <h1>Password Reset</h1>
+            <p>You requested a password reset. Click the link below to reset your password:</p>
+            <a href="${resetUrl}">Reset Password</a>
+            <p>If you did not request a password reset, please ignore this email and your password will remain unchanged.</p>
+            <p>This link will expire in 24 hours.</p>
+        `,
+    };
+    await transporter.sendMail(mailOptions);
+}

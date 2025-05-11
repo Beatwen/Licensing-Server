@@ -12,6 +12,7 @@ import oAuthModel from "../models/oauth/oAuth";
 import jwt from 'jsonwebtoken';
 import oauth from "../config/authServer";
 import AccessToken from "../models/oauth/accessToken";
+import { sendPasswordResetEmail } from "../utils/emailUtils";
 
 export class AuthController {
   static async confirmEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -63,6 +64,10 @@ export class AuthController {
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
+        console.log("Login attempt failed: Invalid password for user:", email);
+        // Pour le débogage, on peut comparer les hashes (à supprimer en production)
+        console.log("Submitted password hash:", await bcrypt.hash(password, 10));
+        console.log("Stored password hash:", user.password);
         res.status(401).json({ error: "Invalid password." });
         return;
       }
@@ -293,6 +298,115 @@ export class AuthController {
       });
     } catch (error) {
       console.error("Error refreshing token:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  static async forgotPassword(req: Request, res: Response): Promise<void> {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+
+    try {
+      // Find the user by email
+      const user = await User.findOne({ where: { email } });
+      
+      // For security reasons, we don't want to reveal if a user exists or not
+      if (!user) {
+        // We still return success even if the user doesn't exist
+        res.status(200).json({ message: "If an account with that email exists, we have sent a password reset link." });
+        return;
+      }
+
+      // Generate a reset token and set expiration (24 hours from now)
+      const resetToken = uuidv4();
+      const resetTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      // Update user with reset token
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = resetTokenExpires;
+      await user.save();
+
+      // Send reset password email
+      await sendPasswordResetEmail(email, resetToken);
+
+      res.status(200).json({ message: "If an account with that email exists, we have sent a password reset link." });
+    } catch (error) {
+      console.error("Error requesting password reset:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  static async verifyResetToken(req: Request, res: Response): Promise<void> {
+    const token = req.query.token as string;
+
+    if (!token) {
+      res.status(400).json({ error: "Token is required" });
+      return;
+    }
+
+    try {
+      const user = await User.findOne({
+        where: {
+          resetPasswordToken: token
+        }
+      });
+
+      if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+        res.status(400).json({ error: "Invalid or expired token" });
+        return;
+      }
+
+      res.status(200).json({ message: "Token is valid" });
+    } catch (error) {
+      console.error("Error verifying reset token:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response): Promise<void> {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      res.status(400).json({ error: "Token and password are required" });
+      return;
+    }
+    
+    console.log("Processing reset password for token:", token);
+    
+    try {
+      const user = await User.findOne({
+        where: {
+          resetPasswordToken: token
+        }
+      });
+
+      if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+        res.status(400).json({ error: "Invalid or expired token" });
+        return;
+      }
+
+      // Important: Ne pas hacher le mot de passe ici car le hook beforeUpdate le fera
+      // Le hook est dans models/user.ts et s'exécutera lors du user.save()
+      console.log("Setting new password for user:", user.email);
+      
+      // Assigner le nouveau mot de passe (non haché) - le hook beforeUpdate le hachera
+      user.password = password;
+      
+      // Effacer le token de réinitialisation
+      user.resetPasswordToken = null;
+      user.resetPasswordExpires = null;
+      
+      // Sauvegarder l'utilisateur - le hook beforeUpdate sera déclenché
+      await user.save();
+
+      console.log("Password reset successful");
+      res.status(200).json({ message: "Password has been reset successfully" });
+    } catch (error) {
+      console.error("Error resetting password:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }
