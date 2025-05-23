@@ -46,4 +46,25 @@ jobs:
           script: |
             cd /var/www/licensing/Licensing-Server/Backend
             npm install
-            pm2 restart licensing-backend 
+            
+            # Set proper permissions for the deployed files
+            chmod -R 755 /var/www/licensing/Licensing-Server/Backend/dist
+            
+            # Check if process exists and restart or start accordingly
+            pm2 describe licensing-backend > /dev/null
+            if [ $? -eq 0 ]; then
+              pm2 restart licensing-backend
+            else
+              pm2 start ecosystem.config.js
+            fi
+            
+            # Save PM2 process list for persistence after reboot
+            pm2 save
+            
+            # Verify deployment
+            echo "===== DEPLOYMENT VERIFICATION ====="
+            echo "Checking PM2 processes:"
+            pm2 list
+            echo "Checking deployed files:"
+            ls -la /var/www/licensing/Licensing-Server/Backend/dist/
+            echo "=============================="
