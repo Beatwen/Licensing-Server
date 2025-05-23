@@ -19,6 +19,7 @@ import ResetPassword from './pages/ResetPassword';
 import { useAuthStore } from './store/authStore';
 import { logger } from './utils/logger';
 
+
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthStore();
   return user ? <>{children}</> : <Navigate to="/login" />;
