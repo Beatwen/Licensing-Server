@@ -4,7 +4,7 @@ import { Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: "Depuis que j'utilise RF_Go, je ne rate plus jamais une fréquence.",
+    quote: "Depuis que j'utilise RF.Go, je ne rate plus jamais une fréquence.",
     author: "Martin",
     role: "Ingénieur son live",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80"

@@ -34,6 +34,11 @@ const Hero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  document.getElementById('demo')?.scrollIntoView({ 
+                    behavior: 'smooth' 
+                  });
+                }}
                 className="px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-lg flex items-center gap-2 hover:bg-blue-50 transition"
               >
                 Voir la démo <Play className="h-5 w-5" />
@@ -52,7 +57,7 @@ const Hero = () => {
               <div className="h-full w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600">
                 <img 
                   src="https://images.unsplash.com/photo-1615648178124-01f7162ceac4?auto=format&fit=crop&w=600"
-                  alt="RF_Go App Interface"
+                  alt="RF.Go App Interface"
                   className="w-full h-full object-cover"
                 />
               </div>

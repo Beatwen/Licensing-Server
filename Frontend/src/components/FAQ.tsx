@@ -4,16 +4,16 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: "RF_Go fonctionne-t-il sans Internet ?",
-    answer: "Oui, RF_Go est conçu pour fonctionner en mode hors-ligne. Toutes les données sont stockées localement et se synchronisent automatiquement lorsque la connexion est rétablie."
+    question: "RF.Go fonctionne-t-il sans Internet ?",
+    answer: "Oui, RF.Go est conçu pour fonctionner en mode hors-ligne. Toutes les données sont stockées localement et se synchronisent automatiquement lorsque la connexion est rétablie."
   },
   {
     question: "L'application est-elle compatible Android/iOS ?",
-    answer: "RF_Go est disponible sur iOS et Android. L'interface est optimisée pour les deux plateformes et offre une expérience utilisateur cohérente."
+    answer: "RF.Go est disponible sur iOS et Android. L'interface est optimisée pour les deux plateformes et offre une expérience utilisateur cohérente."
   },
   {
     question: "Quels types d'émetteurs sont pris en charge ?",
-    answer: "RF_Go est compatible avec la majorité des émetteurs professionnels : Shure, Sennheiser, Wisycom, Lectrosonics et bien d'autres. La liste est régulièrement mise à jour."
+    answer: "RF.Go est compatible avec la majorité des émetteurs professionnels : Shure, Sennheiser, Wisycom, Lectrosonics et bien d'autres. La liste est régulièrement mise à jour."
   }
 ];
 
@@ -30,7 +30,7 @@ const FAQ = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl font-bold mb-4">Questions fréquentes</h2>
-          <p className="text-gray-600 dark:text-gray-300">Tout ce que vous devez savoir sur RF_Go</p>
+          <p className="text-gray-600 dark:text-gray-300">Tout ce que vous devez savoir sur RF.Go</p>
         </motion.div>
 
         <div className="space-y-4">

@@ -1,6 +1,15 @@
 import nodemailer from "nodemailer";
 import License from "../models/licensing";
 
+// Interface pour les données du formulaire de contact
+export interface ContactEmailData {
+  name: string;
+  email: string;
+  company?: string;
+  subject: string;
+  message: string;
+}
+
 // Configuration du transporteur
 const transporter = nodemailer.createTransport({
     service: "gmail", 
@@ -55,5 +64,59 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
             <p>This link will expire in 24 hours.</p>
         `,
     };
+    await transporter.sendMail(mailOptions);
+}
+
+export async function sendContactEmail(data: ContactEmailData): Promise<void> {
+    const { name, email, company, subject, message } = data;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.CONTACT_EMAIL || process.env.EMAIL_USER,
+        subject: `[RF.Go Contact] ${subject}`,
+        html: `
+            <h2>Nouveau message de contact - RF.Go</h2>
+            <p><strong>Nom:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            ${company ? `<p><strong>Entreprise:</strong> ${company}</p>` : ''}
+            <p><strong>Sujet:</strong> ${subject}</p>
+            <div>
+                <strong>Message:</strong>
+                <p style="border-left: 3px solid #3B82F6; padding-left: 15px; margin-left: 10px;">
+                    ${message.replace(/\n/g, '<br>')}
+                </p>
+            </div>
+            <hr>
+            <p style="color: #666; font-size: 12px;">
+                Message envoyé depuis le formulaire de contact RF.Go - ${new Date().toLocaleString()}
+            </p>
+        `,
+        replyTo: email
+    };
+
+    await transporter.sendMail(mailOptions);
+}
+
+export async function sendContactConfirmationEmail(data: ContactEmailData): Promise<void> {
+    const { name, email, subject } = data;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Confirmation de réception - RF.Go',
+        html: `
+            <h2>Merci pour votre message !</h2>
+            <p>Bonjour ${name},</p>
+            <p>Nous avons bien reçu votre message concernant "<strong>${subject}</strong>".</p>
+            <p>Notre équipe vous répondra dans les plus brefs délais.</p>
+            <br>
+            <p>Cordialement,<br>L'équipe RF.Go</p>
+            <hr>
+            <p style="color: #666; font-size: 12px;">
+                Ceci est un message automatique, merci de ne pas y répondre.
+            </p>
+        `
+    };
+
     await transporter.sendMail(mailOptions);
 }

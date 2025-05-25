@@ -21,7 +21,7 @@ const Footer = () => {
             <div className="flex items-center">
               <img 
                 src={isDark ? logoDark : logoLight}
-                alt="RF_Go Logo"
+                alt="RF.Go Logo"
                 className="h-12"
               />
             </div>
@@ -35,7 +35,20 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <button
-                  onClick={() => navigate('/#features')}
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('features')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('features')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
                 >
                   Fonctionnalités
@@ -43,7 +56,20 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => navigate('/#demo')}
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('demo')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('demo')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
                 >
                   Démo
@@ -51,7 +77,20 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => navigate('/#pricing')}
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('pricing')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('pricing')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
                 >
                   Tarifs
@@ -65,7 +104,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <button
-                  onClick={() => navigate('/#contact')}
+                  onClick={() => navigate('/contact')}
                   className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
                 >
                   Contact
@@ -124,7 +163,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              © {new Date().getFullYear()} RF_Go. Tous droits réservés.
+              © {new Date().getFullYear()} RF.Go. Tous droits réservés.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-blue-600">

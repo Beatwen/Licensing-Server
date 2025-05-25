@@ -10,7 +10,7 @@ const MobileCTA = () => {
     >
       <button className="w-full bg-blue-600 text-white rounded-lg py-3 px-4 flex items-center justify-center space-x-2 shadow-lg">
         <Download className="h-5 w-5" />
-        <span>Télécharger RF_Go</span>
+        <span>Télécharger RF.Go</span>
       </button>
     </motion.div>
   );

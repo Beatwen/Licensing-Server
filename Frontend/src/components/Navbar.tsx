@@ -51,7 +51,7 @@ const Navbar = () => {
             <div className="flex items-center">
               <img 
                 src={isDark ? logoDark : logoLight} 
-                alt="RF_Go Logo" 
+                alt="RF.Go Logo" 
                 className="h-12"
               />
             </div>
@@ -59,25 +59,64 @@ const Navbar = () => {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 <button
-                  onClick={() => navigate('/#features')}
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('features')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('features')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
                   className="hover:text-blue-600 px-3 py-2"
                 >
                   Fonctionnalités
                 </button>
                 <button
-                  onClick={() => navigate('/#demo')}
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('demo')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('demo')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
                   className="hover:text-blue-600 px-3 py-2"
                 >
                   Démo
                 </button>
                 <button
-                  onClick={() => navigate('/#pricing')}
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('pricing')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('pricing')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
                   className="hover:text-blue-600 px-3 py-2"
                 >
                   Tarifs
                 </button>
                 <button
-                  onClick={() => navigate('/#contact')}
+                  onClick={() => navigate('/contact')}
                   className="hover:text-blue-600 px-3 py-2"
                 >
                   Contact
@@ -179,25 +218,67 @@ const Navbar = () => {
           >
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               <button
-                onClick={() => navigate('/#features')}
+                onClick={() => {
+                  if (window.location.pathname === '/') {
+                    document.getElementById('features')?.scrollIntoView({ 
+                      behavior: 'smooth' 
+                    });
+                  } else {
+                    navigate('/');
+                    setTimeout(() => {
+                      document.getElementById('features')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    }, 100);
+                  }
+                  setIsOpen(false);
+                }}
                 className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Fonctionnalités
               </button>
               <button
-                onClick={() => navigate('/#demo')}
+                onClick={() => {
+                  if (window.location.pathname === '/') {
+                    document.getElementById('demo')?.scrollIntoView({ 
+                      behavior: 'smooth' 
+                    });
+                  } else {
+                    navigate('/');
+                    setTimeout(() => {
+                      document.getElementById('demo')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    }, 100);
+                  }
+                  setIsOpen(false);
+                }}
                 className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Démo
               </button>
               <button
-                onClick={() => navigate('/#pricing')}
+                onClick={() => {
+                  if (window.location.pathname === '/') {
+                    document.getElementById('pricing')?.scrollIntoView({ 
+                      behavior: 'smooth' 
+                    });
+                  } else {
+                    navigate('/');
+                    setTimeout(() => {
+                      document.getElementById('pricing')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    }, 100);
+                  }
+                  setIsOpen(false);
+                }}
                 className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Tarifs
               </button>
               <button
-                onClick={() => navigate('/#contact')}
+                onClick={() => navigate('/contact')}
                 className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Contact

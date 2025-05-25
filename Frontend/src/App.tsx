@@ -3,16 +3,19 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import VideoDemo from './components/VideoDemo';
 import Features from './components/Features';
 import Architecture from './components/Architecture';
 import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
+import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import MobileCTA from './components/MobileCTA';
 import Dashboard from './components/Dashboard';
 import PricingPlans from './components/PricingPlans';
 import VerifyEmail from './pages/VerifyEmail';
 import LoginPage from './pages/LoginPage';
+import ContactPage from './pages/ContactPage';
 import ConfirmEmail from './pages/ConfirmEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -66,14 +69,17 @@ function App() {
           <Route path="/" element={
             <>
               <Hero />
+              <VideoDemo />
               <Features />
               <Architecture />
               <PricingPlans />
               <Testimonials />
               <FAQ />
+              <ContactSection />
             </>
           } />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/auth/confirm-email" element={<ConfirmEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

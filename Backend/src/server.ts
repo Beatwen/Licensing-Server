@@ -9,6 +9,7 @@ import oauth, { authenticate } from "./config/authServer";
 import cors from "cors";
 import userRouter from "./routes/userRouter";
 import authRouter from "./routes/authRouter";
+import contactRouter from "./routes/contact";
 import bodyParser from "body-parser";
 import licenseRouter from "./routes/licenseRouter";
 import Device from "./models/device";
@@ -118,6 +119,11 @@ const startServer = async () => {
         return next(); 
       }
 
+      // Skip API key validation for contact endpoint
+      if (req.path.startsWith("/contact")) {
+        return next();
+      }
+
       const apiKey = req.headers['x-api-key'];
 
       if (!apiKey || apiKey !== process.env.API_KEY) {
@@ -136,6 +142,7 @@ const startServer = async () => {
     app.use("/users", authenticate, userRouter);
     app.use("/licenses", authenticate, licenseRouter);
     app.use("/devices", authenticate, deviceRouter);
+    app.use("/contact", contactRouter);
     app.use("/logs", logRouter);
 
     const PORT = process.env.PORT || 3000;
