@@ -64,6 +64,32 @@ jobs:
           echo "=============================="
           
           npm run build
+
+      - name: Clean deployment directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # Stop any processes that might be using the files
+            sudo systemctl stop apache2 || true
+            
+            # Remove existing files with force
+            sudo rm -rf /var/www/licensing/Licensing-Server/Frontend/dist/*
+            sudo rm -rf /var/www/licensing/Licensing-Server/Frontend/dist/.*
+            
+            # Recreate directory structure
+            sudo mkdir -p /var/www/licensing/Licensing-Server/Frontend/dist/
+            sudo mkdir -p /var/www/licensing/Licensing-Server/Frontend/dist/assets/
+            
+            # Set proper ownership and permissions
+            sudo chown -R $USER:$USER /var/www/licensing/Licensing-Server/Frontend/dist/
+            sudo chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist/
+            
+            echo "===== DIRECTORY CLEANED ====="
+            ls -la /var/www/licensing/Licensing-Server/Frontend/dist/
+            echo "=============================="
           
       - name: Deploy to server
         uses: appleboy/scp-action@master
@@ -74,8 +100,10 @@ jobs:
           source: "Frontend/dist/*"
           target: "/var/www/licensing/Licensing-Server/Frontend/dist/"
           strip_components: 2
+          overwrite: true
+          rm: false
           
-      - name: Configure Apache
+      - name: Configure Apache and set final permissions
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -83,7 +111,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             # Set proper permissions for the deployed files
-            chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist
+            sudo chown -R www-data:www-data /var/www/licensing/Licensing-Server/Frontend/dist/
+            sudo chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist/
+            sudo find /var/www/licensing/Licensing-Server/Frontend/dist/ -type f -exec chmod 644 {} \;
             
             # Create .htaccess file for SPA routing
             cat > /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess << 'EOL'
@@ -95,23 +125,39 @@ jobs:
               RewriteCond %{REQUEST_FILENAME} !-d
               RewriteRule . /index.html [L]
             </IfModule>
+            
+            # Security headers
+            <IfModule mod_headers.c>
+              Header always set X-Content-Type-Options nosniff
+              Header always set X-Frame-Options DENY
+              Header always set X-XSS-Protection "1; mode=block"
+            </IfModule>
+            
+            # Cache control for assets
+            <IfModule mod_expires.c>
+              ExpiresActive on
+              ExpiresByType text/css "access plus 1 year"
+              ExpiresByType application/javascript "access plus 1 year"
+              ExpiresByType image/png "access plus 1 year"
+              ExpiresByType image/svg+xml "access plus 1 year"
+            </IfModule>
             EOL
             
-            # Reload Apache to apply changes
+            # Set correct permissions for .htaccess
+            sudo chmod 644 /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess
+            
+            # Start Apache
+            sudo systemctl start apache2
             sudo systemctl reload apache2
             
             # Verify deployment
             echo "===== DEPLOYMENT VERIFICATION ====="
             echo "Checking deployed files:"
             ls -la /var/www/licensing/Licensing-Server/Frontend/dist/
-            echo "=============================="
-
-      - name: Cache busting (if needed)
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            # Optional: Clear any caches if necessary
-            # redis-cli flushall 
+            echo ""
+            echo "Checking assets directory:"
+            ls -la /var/www/licensing/Licensing-Server/Frontend/dist/assets/ || echo "No assets directory found"
+            echo ""
+            echo "Apache status:"
+            sudo systemctl status apache2 --no-pager -l
+            echo "==============================" 
