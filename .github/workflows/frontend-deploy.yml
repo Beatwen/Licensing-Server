@@ -64,27 +64,6 @@ jobs:
           echo "=============================="
           
           npm run build
-
-      - name: Clean deployment directory
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            # Stop any processes that might be using the files
-            sudo systemctl stop apache2 || true
-            
-            # Remove existing files with force and create temp directory
-            sudo rm -rf /var/www/licensing/Licensing-Server/Frontend/dist
-            sudo rm -rf /tmp/frontend-deploy
-            sudo mkdir -p /tmp/frontend-deploy
-            sudo chown -R $USER:$USER /tmp/frontend-deploy
-            sudo chmod -R 777 /tmp/frontend-deploy
-            
-            echo "===== DIRECTORY PREPARED ====="
-            ls -la /tmp/
-            echo "=============================="
           
       - name: Deploy to server
         uses: appleboy/scp-action@master
@@ -93,31 +72,23 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: "Frontend/dist/*"
-          target: "/tmp/frontend-deploy/"
+          target: "/var/www/licensing/Licensing-Server/Frontend/dist/"
           strip_components: 2
           overwrite: true
-          rm: false
+          rm: true
           
-      - name: Move files and configure Apache
+      - name: Configure deployment
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # Create final directory structure
-            sudo mkdir -p /var/www/licensing/Licensing-Server/Frontend/dist/
-            
-            # Move files from temp to final location
-            sudo cp -r /tmp/frontend-deploy/* /var/www/licensing/Licensing-Server/Frontend/dist/
-            
-            # Clean up temp directory
-            sudo rm -rf /tmp/frontend-deploy
+            cd /var/www/licensing/Licensing-Server/Frontend
             
             # Set proper permissions for the deployed files
-            sudo chown -R www-data:www-data /var/www/licensing/Licensing-Server/Frontend/dist/
-            sudo chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist/
-            sudo find /var/www/licensing/Licensing-Server/Frontend/dist/ -type f -exec chmod 644 {} \;
+            chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist
+            find /var/www/licensing/Licensing-Server/Frontend/dist -type f -exec chmod 644 {} \;
             
             # Create .htaccess file for SPA routing
             cat > /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess << 'EOL'
@@ -148,11 +119,7 @@ jobs:
             EOL
             
             # Set correct permissions for .htaccess
-            sudo chmod 644 /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess
-            
-            # Start Apache
-            sudo systemctl start apache2
-            sudo systemctl reload apache2
+            chmod 644 /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess
             
             # Verify deployment
             echo "===== DEPLOYMENT VERIFICATION ====="
@@ -161,7 +128,4 @@ jobs:
             echo ""
             echo "Checking assets directory:"
             ls -la /var/www/licensing/Licensing-Server/Frontend/dist/assets/ || echo "No assets directory found"
-            echo ""
-            echo "Apache status:"
-            sudo systemctl status apache2 --no-pager -l
-            echo "==============================" 
+            echo "=============================="
