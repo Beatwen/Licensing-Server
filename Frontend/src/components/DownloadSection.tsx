@@ -129,23 +129,15 @@ const DownloadSection = () => {
         transition={{ delay: 0.6 }}
         className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6"
       >
-        <h3 className="font-semibold text-lg mb-4">Notes de version v2.1.0</h3>
+        <h3 className="font-semibold text-lg mb-4">Notes de version v1.0.0</h3>
         <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
           <li className="flex items-start space-x-2">
             <span className="text-green-500 mt-1">•</span>
-            <span>Amélioration de la détection automatique des émetteurs</span>
+            <span>Première version de l'application</span>
           </li>
           <li className="flex items-start space-x-2">
             <span className="text-green-500 mt-1">•</span>
-            <span>Nouvelle interface pour la gestion des bandes TV</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="text-green-500 mt-1">•</span>
-            <span>Optimisation des performances en mode hors-ligne</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="text-blue-500 mt-1">•</span>
-            <span>Corrections de bugs et améliorations de stabilité</span>
+            <span>Bêta version</span>
           </li>
         </ul>
       </motion.div>

@@ -3,12 +3,10 @@ import { sendContactEmail, sendContactConfirmationEmail, ContactEmailData } from
 
 const contactRouter = Router();
 
-// POST /api/contact - Envoyer un message de contact
 contactRouter.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, company, subject, message }: ContactEmailData = req.body;
 
-    // Validation des données
     if (!name || !email || !subject || !message) {
       res.status(400).json({ 
         message: 'Tous les champs obligatoires doivent être remplis' 
@@ -16,7 +14,6 @@ contactRouter.post('/', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       res.status(400).json({ 
@@ -33,7 +30,6 @@ contactRouter.post('/', async (req: Request, res: Response): Promise<void> => {
       message
     };
 
-    // Envoyer les emails
     await sendContactEmail(contactData);
     await sendContactConfirmationEmail(contactData);
 

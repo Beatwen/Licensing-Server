@@ -114,12 +114,10 @@ const startServer = async () => {
         return next();
       }
       
-      // Skip API key validation for email confirmation
       if (req.path.startsWith("/auth/confirm-email")) {
         return next(); 
       }
 
-      // Skip API key validation for contact endpoint
       if (req.path.startsWith("/contact")) {
         return next(); 
       }
