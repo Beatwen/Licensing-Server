@@ -139,16 +139,16 @@ const VideoDemo = () => {
               </div>
               
               {/* Optionnel : Si vous avez une vidéo, décommentez ceci
-              <video
-                ref={videoRef}
-                className="w-full h-auto"
-                onTimeUpdate={handleTimeUpdate}
-                onEnded={() => setIsPlaying(false)}
+            <video
+              ref={videoRef}
+              className="w-full h-auto"
+              onTimeUpdate={handleTimeUpdate}
+              onEnded={() => setIsPlaying(false)}
                 poster="/placeholder-video-poster.jpg"
-              >
-                <source src="/video/presentation-demo.mp4" type="video/mp4" />
-                Votre navigateur ne supporte pas la lecture vidéo.
-              </video>
+            >
+              <source src="/video/presentation-demo.mp4" type="video/mp4" />
+              Votre navigateur ne supporte pas la lecture vidéo.
+            </video>
               */}
             </div>
 

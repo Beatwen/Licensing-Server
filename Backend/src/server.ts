@@ -121,7 +121,7 @@ const startServer = async () => {
 
       // Skip API key validation for contact endpoint
       if (req.path.startsWith("/contact")) {
-        return next();
+        return next(); 
       }
 
       const apiKey = req.headers['x-api-key'];

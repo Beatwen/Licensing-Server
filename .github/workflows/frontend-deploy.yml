@@ -58,12 +58,12 @@ jobs:
           VITE_EMAIL_FROM=$VITE_EMAIL_FROM
           EOL
           
-          # Verify .env was created correctly
-          echo "===== ENVIRONMENT VARIABLES ====="
-          cat .env
-          echo "=============================="
-          
           npm run build
+          
+      - name: Create deployment package
+        run: |
+          cd Frontend/dist
+          tar -czf ../../frontend-build.tar.gz .
           
       - name: Deploy to server
         uses: appleboy/scp-action@master
@@ -71,27 +71,45 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "Frontend/dist/*"
-          target: "/var/www/licensing/Licensing-Server/Frontend/dist/"
-          strip_components: 2
-          overwrite: true
-          rm: true
+          source: "frontend-build.tar.gz"
+          target: "/tmp/"
           
-      - name: Configure deployment
+      - name: Extract and configure deployment
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /var/www/licensing/Licensing-Server/Frontend
+            # Define variables
+            DEPLOY_PATH="/var/www/licensing/Licensing-Server/Frontend/dist"
+            BACKUP_PATH="/var/www/licensing/Licensing-Server/Frontend/dist_backup_$(date +%Y%m%d_%H%M%S)"
             
-            # Set proper permissions for the deployed files
-            chmod -R 755 /var/www/licensing/Licensing-Server/Frontend/dist
-            find /var/www/licensing/Licensing-Server/Frontend/dist -type f -exec chmod 644 {} \;
+            # Create backup of current deployment if it exists
+            if [ -d "$DEPLOY_PATH" ]; then
+              echo "Creating backup of current deployment..."
+              cp -r "$DEPLOY_PATH" "$BACKUP_PATH"
+            fi
+            
+            # Create deployment directory if it doesn't exist
+            mkdir -p "$DEPLOY_PATH"
+            
+            # Clear existing files
+            rm -rf "$DEPLOY_PATH"/*
+            
+            # Extract new build
+            echo "Extracting new build..."
+            cd "$DEPLOY_PATH"
+            tar -xzf /tmp/frontend-build.tar.gz
+            
+            # Set proper permissions (assuming your user owns the directory)
+            echo "Setting permissions..."
+            chmod -R 755 "$DEPLOY_PATH"
+            find "$DEPLOY_PATH" -type f -exec chmod 644 {} \;
             
             # Create .htaccess file for SPA routing
-            cat > /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess << 'EOL'
+            echo "Creating .htaccess..."
+            cat > "$DEPLOY_PATH/.htaccess" << 'HTACCESS_EOF'
             <IfModule mod_rewrite.c>
               RewriteEngine On
               RewriteBase /
@@ -116,16 +134,28 @@ jobs:
               ExpiresByType image/png "access plus 1 year"
               ExpiresByType image/svg+xml "access plus 1 year"
             </IfModule>
-            EOL
+            HTACCESS_EOF
             
             # Set correct permissions for .htaccess
-            chmod 644 /var/www/licensing/Licensing-Server/Frontend/dist/.htaccess
+            chmod 644 "$DEPLOY_PATH/.htaccess"
+            
+            # Clean up
+            rm -f /tmp/frontend-build.tar.gz
             
             # Verify deployment
             echo "===== DEPLOYMENT VERIFICATION ====="
             echo "Checking deployed files:"
-            ls -la /var/www/licensing/Licensing-Server/Frontend/dist/
+            ls -la "$DEPLOY_PATH"
             echo ""
             echo "Checking assets directory:"
-            ls -la /var/www/licensing/Licensing-Server/Frontend/dist/assets/ || echo "No assets directory found"
+            ls -la "$DEPLOY_PATH/assets/" 2>/dev/null || echo "No assets directory found"
+            echo ""
+            echo "Checking .htaccess:"
+            ls -la "$DEPLOY_PATH/.htaccess"
             echo "=============================="
+            
+            # Keep only the 3 most recent backups
+            echo "Cleaning old backups..."
+            find /var/www/licensing/Licensing-Server/Frontend/ -name "dist_backup_*" -type d | sort -r | tail -n +4 | xargs rm -rf
+            
+            echo "Deployment completed successfully!"
