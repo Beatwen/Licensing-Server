@@ -58,7 +58,7 @@ const VideoDemo = () => {
   };
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     if (isPlaying) {
       timeout = setTimeout(() => setShowControls(false), 3000);
     } else {
@@ -122,35 +122,17 @@ const VideoDemo = () => {
             onMouseEnter={() => setShowControls(true)}
             onMouseLeave={() => isPlaying && setShowControls(false)}
           >
-            {/* Video Element ou Image de démonstration */}
-            <div className="relative w-full h-auto bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center min-h-[400px]">
-              {/* Image de démonstration temporaire */}
-              <div className="text-center text-white p-8">
-                <div className="bg-white/20 rounded-full p-6 mb-4 inline-block">
-                  <Play className="w-16 h-16 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Démonstration RF.Go</h3>
-                <p className="text-blue-100 mb-4">
-                  Découvrez l'interface intuitive et les fonctionnalités avancées
-                </p>
-                <div className="text-sm text-blue-200">
-                  Vidéo de démonstration bientôt disponible
-                </div>
-              </div>
-              
-              {/* Optionnel : Si vous avez une vidéo, décommentez ceci
+            {/* Video Element */}
             <video
               ref={videoRef}
               className="w-full h-auto"
               onTimeUpdate={handleTimeUpdate}
               onEnded={() => setIsPlaying(false)}
-                poster="/placeholder-video-poster.jpg"
+              poster="/placeholder-video-poster.jpg"
             >
               <source src="/video/presentation-demo.mp4" type="video/mp4" />
               Votre navigateur ne supporte pas la lecture vidéo.
             </video>
-              */}
-            </div>
 
             {/* Custom Controls Overlay */}
             <div className={`absolute inset-0 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>

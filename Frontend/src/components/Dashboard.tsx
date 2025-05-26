@@ -2,21 +2,19 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import api from '../utils/api';
 import { License } from '../types/license';
-import { Loader, CreditCard, User, Key  } from 'lucide-react';
+import { Loader, CreditCard, User, Key, Download } from 'lucide-react';
 import AccountSettings from './AccountSettings';
 import PricingPlans from './PricingPlans';
+import DownloadSection from './DownloadSection';
 import { logger } from '../utils/logger';
 import toast from 'react-hot-toast';
 import LicensesTab from './LicensesTab';
-
-
-
 
 const Dashboard = () => {
   const { user } = useAuthStore();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'licenses' | 'billing' | 'account'>('licenses');
+  const [activeTab, setActiveTab] = useState<'licenses' | 'billing' | 'account' | 'download'>('licenses');
 
   useEffect(() => {
     const fetchLicenses = async () => {
@@ -36,6 +34,13 @@ const Dashboard = () => {
     fetchLicenses();
   }, [user?.id]);
 
+  // Gérer la navigation avec hash pour l'onglet download
+  useEffect(() => {
+    if (window.location.hash === '#download') {
+      setActiveTab('download');
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -52,6 +57,8 @@ const Dashboard = () => {
         return <PricingPlans />;
       case 'account':
         return <AccountSettings />;
+      case 'download':
+        return <DownloadSection />;
       default:
         return null;
     }
@@ -66,7 +73,7 @@ const Dashboard = () => {
         </p>
       </div>
 
-      <div className="flex space-x-4 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6">
         <button
           onClick={() => setActiveTab('licenses')}
           className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
@@ -88,6 +95,17 @@ const Dashboard = () => {
         >
           <CreditCard className="w-5 h-5" />
           <span>Acheter</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('download')}
+          className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+            activeTab === 'download'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+          }`}
+        >
+          <Download className="w-5 h-5" />
+          <span>Télécharger</span>
         </button>
         <button
           onClick={() => setActiveTab('account')}

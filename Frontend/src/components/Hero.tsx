@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
-import { ChevronRight, Play } from 'lucide-react';
+import { Play, Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-[80vh] flex items-center relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900">
-      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -26,9 +29,10 @@ const Hero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/dashboard#download')}
                 className="px-8 py-4 bg-blue-600 text-white rounded-lg flex items-center gap-2 shadow-lg hover:bg-blue-700 transition"
               >
-                Découvrir l'app <ChevronRight className="h-5 w-5" />
+                Télécharger l'app <Download className="h-5 w-5" />
               </motion.button>
 
               <motion.button

@@ -61,25 +61,6 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     if (window.location.pathname === '/') {
-                      document.getElementById('features')?.scrollIntoView({ 
-                        behavior: 'smooth' 
-                      });
-                    } else {
-                      navigate('/');
-                      setTimeout(() => {
-                        document.getElementById('features')?.scrollIntoView({ 
-                          behavior: 'smooth' 
-                        });
-                      }, 100);
-                    }
-                  }}
-                  className="hover:text-blue-600 px-3 py-2"
-                >
-                  Fonctionnalités
-                </button>
-                <button
-                  onClick={() => {
-                    if (window.location.pathname === '/') {
                       document.getElementById('demo')?.scrollIntoView({ 
                         behavior: 'smooth' 
                       });
@@ -95,6 +76,25 @@ const Navbar = () => {
                   className="hover:text-blue-600 px-3 py-2"
                 >
                   Démo
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.location.pathname === '/') {
+                      document.getElementById('features')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    } else {
+                      navigate('/');
+                      setTimeout(() => {
+                        document.getElementById('features')?.scrollIntoView({ 
+                          behavior: 'smooth' 
+                        });
+                      }, 100);
+                    }
+                  }}
+                  className="hover:text-blue-600 px-3 py-2"
+                >
+                  Fonctionnalités
                 </button>
                 <button
                   onClick={() => {
@@ -220,26 +220,6 @@ const Navbar = () => {
               <button
                 onClick={() => {
                   if (window.location.pathname === '/') {
-                    document.getElementById('features')?.scrollIntoView({ 
-                      behavior: 'smooth' 
-                    });
-                  } else {
-                    navigate('/');
-                    setTimeout(() => {
-                      document.getElementById('features')?.scrollIntoView({ 
-                        behavior: 'smooth' 
-                      });
-                    }, 100);
-                  }
-                  setIsOpen(false);
-                }}
-                className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                Fonctionnalités
-              </button>
-              <button
-                onClick={() => {
-                  if (window.location.pathname === '/') {
                     document.getElementById('demo')?.scrollIntoView({ 
                       behavior: 'smooth' 
                     });
@@ -256,6 +236,26 @@ const Navbar = () => {
                 className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Démo
+              </button>
+              <button
+                onClick={() => {
+                  if (window.location.pathname === '/') {
+                    document.getElementById('features')?.scrollIntoView({ 
+                      behavior: 'smooth' 
+                    });
+                  } else {
+                    navigate('/');
+                    setTimeout(() => {
+                      document.getElementById('features')?.scrollIntoView({ 
+                        behavior: 'smooth' 
+                      });
+                    }, 100);
+                  }
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Fonctionnalités
               </button>
               <button
                 onClick={() => {
