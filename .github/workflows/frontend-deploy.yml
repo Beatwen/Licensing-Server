@@ -88,24 +88,29 @@ jobs:
             # Create backup of current deployment if it exists
             if [ -d "$DEPLOY_PATH" ]; then
               echo "Creating backup of current deployment..."
-              cp -r "$DEPLOY_PATH" "$BACKUP_PATH"
+              sudo cp -r "$DEPLOY_PATH" "$BACKUP_PATH"
             fi
             
-            # Create deployment directory if it doesn't exist
-            mkdir -p "$DEPLOY_PATH"
+            # Remove existing deployment directory and recreate it
+            echo "Cleaning deployment directory..."
+            sudo rm -rf "$DEPLOY_PATH"
+            sudo mkdir -p "$DEPLOY_PATH"
             
-            # Clear existing files
-            rm -rf "$DEPLOY_PATH"/*
+            # Change ownership to current user for deployment
+            sudo chown -R $(whoami):$(whoami) "$DEPLOY_PATH"
             
             # Extract new build
             echo "Extracting new build..."
             cd "$DEPLOY_PATH"
             tar -xzf /tmp/frontend-build.tar.gz
             
-            # Set proper permissions (assuming your user owns the directory)
+            # Set proper permissions for web server
             echo "Setting permissions..."
             chmod -R 755 "$DEPLOY_PATH"
             find "$DEPLOY_PATH" -type f -exec chmod 644 {} \;
+            
+            # Change ownership back to www-data for web server
+            sudo chown -R www-data:www-data "$DEPLOY_PATH"
             
             # Create .htaccess file for SPA routing
             echo "Creating .htaccess..."
