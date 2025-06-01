@@ -1,9 +1,120 @@
 import { motion } from 'framer-motion';
 import { Play, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import logoLight from '../assets/images/RFGo-Logo.svg';
+import logoDark from '../assets/images/RFGo-Logo-dark.svg';
+import presentationVideo from '../assets/video/screen-rf-go.mp4';
 
 const Hero = () => {
   const navigate = useNavigate();
+  const [currentPhase, setCurrentPhase] = useState<'logo-initial' | 'video' | 'logo-final'>('logo-initial');
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Précharger la vidéo dès le début
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+
+    const logoTimer = setTimeout(() => {
+      setCurrentPhase('video');
+      if (videoRef.current) {
+        videoRef.current.play().catch(error => {
+          console.error('Erreur lors de la lecture de la vidéo:', error);
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.play().catch(e => console.error('Deuxième tentative échouée:', e));
+            }
+          }, 100);
+        });
+      }
+    }, 5000);
+
+    return () => clearTimeout(logoTimer);
+  }, []);
+
+  const handleVideoTimeUpdate = () => {
+    if (videoRef.current && videoRef.current.currentTime >= 30) {
+      // Après 30 secondes de vidéo, passer au logo final
+      setCurrentPhase('logo-final');
+      videoRef.current.pause();
+    }
+  };
+
+  const handleVideoLoaded = () => {
+    console.log('Vidéo chargée et prête à être lue');
+    if (videoRef.current && currentPhase === 'video') {
+      videoRef.current.play().catch(error => {
+        console.error('Erreur lors de la lecture après chargement:', error);
+      });
+    }
+  };
+
+  const renderContent = () => {
+    switch (currentPhase) {
+      case 'logo-initial':
+      case 'logo-final':
+        return (
+          <>
+            <div className="flex items-center justify-center h-full w-full">
+              <motion.img
+                key={currentPhase}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                src={logoLight}
+                alt="RF.Go Logo"
+                className="max-w-[80%] max-h-[80%] object-contain dark:hidden"
+              />
+              <motion.img
+                key={`${currentPhase}-dark`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                src={logoDark}
+                alt="RF.Go Logo"
+                className="max-w-[80%] max-h-[80%] object-contain hidden dark:block"
+              />
+            </div>
+            {/* Vidéo cachée mais préchargée */}
+            <video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full object-cover opacity-0 pointer-events-none"
+              muted
+              autoPlay={false}
+              playsInline
+              preload="auto"
+              onTimeUpdate={handleVideoTimeUpdate}
+              onLoadedData={handleVideoLoaded}
+              onError={(e) => console.error('Erreur vidéo:', e)}
+            >
+              <source src={presentationVideo} type="video/mp4" />
+              Votre navigateur ne supporte pas les vidéos HTML5.
+            </video>
+          </>
+        );
+      case 'video':
+        return (
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            muted
+            autoPlay
+            playsInline
+            preload="auto"
+            onTimeUpdate={handleVideoTimeUpdate}
+            onLoadedData={handleVideoLoaded}
+            onError={(e) => console.error('Erreur vidéo:', e)}
+          >
+            <source src={presentationVideo} type="video/mp4" />
+            Votre navigateur ne supporte pas les vidéos HTML5.
+          </video>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-[80vh] flex items-center relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900">
@@ -59,11 +170,7 @@ const Hero = () => {
             <div className="relative mx-auto w-[280px] h-[580px] bg-black rounded-[3rem] p-4 shadow-2xl">
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-black rounded-b-3xl"></div>
               <div className="h-full w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600">
-                <img 
-                  src="https://images.unsplash.com/photo-1615648178124-01f7162ceac4?auto=format&fit=crop&w=600"
-                  alt="RF.Go App Interface"
-                  className="w-full h-full object-cover"
-                />
+                {renderContent()}
               </div>
             </div>
           </motion.div>

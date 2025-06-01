@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import VideoDemo from './components/VideoDemo';
 import Features from './components/Features';
-import Architecture from './components/Architecture';
+import WhyChooseUs from './components/Architecture';
 import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
 import ContactSection from './components/ContactSection';
@@ -71,7 +71,7 @@ function App() {
               <Hero />
               <VideoDemo />
               <Features />
-              <Architecture />
+              <WhyChooseUs />
               <PricingPlans />
               <Testimonials />
               <FAQ />

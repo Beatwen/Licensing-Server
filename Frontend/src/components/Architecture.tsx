@@ -1,10 +1,31 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Database, Server, Smartphone } from 'lucide-react';
+import { Clock, Shield, TrendingUp, Users, Zap, Award } from 'lucide-react';
 
-const Architecture = () => {
+const WhyChooseUs = () => {
+  const benefits = [
+    {
+      icon: Clock,
+      title: "Gain de temps",
+      stat: "50%",
+      description: "de temps économisé sur la coordination fréquences"
+    },
+    {
+      icon: Shield,
+      title: "Fiabilité",
+      stat: "100%",
+      description: "de disponibilité même sans connexion internet"
+    },
+    {
+      icon: Award,
+      title: "Confiance",
+      stat: "500+",
+      description: "événements réussis avec RF.Go"
+    }
+  ];
+
   return (
-    <section id="architecture" className="py-20 bg-gray-50 dark:bg-gray-800">
+    <section id="why-choose" className="py-20 bg-gray-50 dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -12,67 +33,55 @@ const Architecture = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl font-bold mb-4">Architecture technique</h2>
-          <p className="text-gray-600 dark:text-gray-300">Une solution robuste pensée pour le terrain</p>
+          <h2 className="text-3xl font-bold mb-4">Pourquoi choisir RF.Go ?</h2>
+          <p className="text-gray-600 dark:text-gray-300">Les chiffres parlent d'eux-mêmes</p>
         </motion.div>
 
-        <div className="relative">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {benefits.map((benefit, index) => (
             <motion.div
+              key={benefit.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col items-center p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg"
+              transition={{ delay: index * 0.1 }}
+              className="text-center p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
             >
-              <Smartphone className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Frontend React</h3>
-              <p className="text-sm text-center text-gray-600 dark:text-gray-300">Interface utilisateur moderne et réactive</p>
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+                  <benefit.icon className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+              
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {benefit.stat}
+              </div>
+              
+              <h3 className="text-lg font-semibold mb-2">
+                {benefit.title}
+              </h3>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {benefit.description}
+              </p>
             </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="w-20 h-0.5 md:w-0.5 md:h-20 bg-blue-600"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col items-center p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg"
-            >
-              <Server className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">API Express</h3>
-              <p className="text-sm text-center text-gray-600 dark:text-gray-300">Backend performant et sécurisé</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="w-20 h-0.5 md:w-0.5 md:h-20 bg-blue-600"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-col items-center p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg"
-            >
-              <Database className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">MongoDB</h3>
-              <p className="text-sm text-center text-gray-600 dark:text-gray-300">Stockage local fiable et rapide</p>
-            </motion.div>
-          </div>
+          ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mt-12"
+        >
+          <div className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-full">
+            <Award className="w-5 h-5 mr-2" />
+            <span className="font-semibold">Adopté par les plus grands événements français</span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 };
 
-export default Architecture;
+export default WhyChooseUs;
