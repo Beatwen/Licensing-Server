@@ -109,6 +109,10 @@ const startServer = async () => {
     app.use(bodyParser.json());
 
     function validateApiKey(req: Request, res: Response, next: NextFunction): void {
+      if (req.method === "OPTIONS") {
+        return next();
+      }
+      
       // Skip API key validation for logs endpoint
       if (req.path.startsWith("/logs")) {
         return next();
