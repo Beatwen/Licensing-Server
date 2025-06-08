@@ -6,6 +6,8 @@ on:
     paths:
       - 'Frontend/**'
       - '.github/workflows/frontend-deploy.yml'
+  repository_dispatch:
+    types: [deploy-frontend]
 
 env:
   # API Configuration
