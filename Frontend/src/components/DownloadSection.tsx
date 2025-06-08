@@ -39,7 +39,6 @@ const DownloadSection = () => {
   const [downloadData, setDownloadData] = useState<DownloadData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Données par défaut en cas d'échec du chargement
   const defaultDownloadLinks = [
     {
       platform: 'Windows',
