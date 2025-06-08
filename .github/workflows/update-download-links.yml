@@ -1,0 +1,113 @@
+name: Update RF_Go Download Links
+
+on:
+  repository_dispatch:
+    types: [rf-go-release]
+
+jobs:
+  update-links:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 📋 Extract Release Info
+      id: release_info
+      run: |
+        VERSION="${{ github.event.client_payload.version }}"
+        TEST_MODE="${{ github.event.client_payload.test_mode }}"
+        
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "TEST_MODE=$TEST_MODE" >> $GITHUB_OUTPUT
+        
+        if [ "$TEST_MODE" = "true" ]; then
+          echo "🧪 TEST MODE: Processing test release $VERSION"
+        else
+          echo "🚀 PRODUCTION: Processing real release $VERSION"
+        fi
+    
+    - name: 🔄 Update Download Links
+      run: |
+        VERSION="${{ steps.release_info.outputs.VERSION }}"
+        TEST_MODE="${{ steps.release_info.outputs.TEST_MODE }}"
+        WINDOWS_URL="${{ github.event.client_payload.downloads.windows }}"
+        ANDROID_URL="${{ github.event.client_payload.downloads.android }}"
+        MACOS_URL="${{ github.event.client_payload.downloads.macos }}"
+        IOS_URL="${{ github.event.client_payload.downloads.ios }}"
+        
+        echo "📝 Updating download links for RF_Go $VERSION"
+        
+        # Créer le dossier config s'il n'existe pas
+        mkdir -p Frontend/public/config
+        
+        # Déterminer le nom de fichier selon le mode
+        if [ "$TEST_MODE" = "true" ]; then
+          CONFIG_FILE="Frontend/public/config/rf_go_downloads_test.json"
+          echo "🧪 Using test configuration file"
+        else
+          CONFIG_FILE="Frontend/public/config/rf_go_downloads.json"
+          echo "🚀 Using production configuration file"
+        fi
+        
+        # Créer/mettre à jour le fichier de configuration JSON
+        cat > "$CONFIG_FILE" << EOF
+        {
+          "version": "$VERSION",
+          "release_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "release_url": "${{ github.event.client_payload.release_url }}",
+          "test_mode": $TEST_MODE,
+          "downloads": {
+            "windows": {
+              "url": "$WINDOWS_URL",
+              "filename": "RF_Go-$VERSION-setup-windows-x64.exe",
+              "platform": "Windows 10/11",
+              "type": "Installer EXE"
+            },
+            "android": {
+              "url": "$ANDROID_URL", 
+              "filename": "RF_Go-$VERSION-android.apk",
+              "platform": "Android (API 24+)",
+              "type": "APK"
+            },
+            "macos": {
+              "url": "$MACOS_URL",
+              "filename": "RF_Go-$VERSION-macos-x64.tar.gz",
+              "platform": "macOS (Big Sur+)",
+              "type": "TAR.GZ"
+            },
+            "ios": {
+              "url": "$IOS_URL",
+              "filename": "RF_Go-$VERSION-ios-arm64.tar.gz",
+              "platform": "iOS (15.0+)",
+              "type": "TAR.GZ"
+            }
+          }
+        }
+        EOF
+        
+        echo "✅ Download links updated successfully in $CONFIG_FILE"
+        echo "📄 File content:"
+        cat "$CONFIG_FILE"
+    
+    - name: 📤 Commit and Push Changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action Bot"
+        
+        VERSION="${{ steps.release_info.outputs.VERSION }}"
+        TEST_MODE="${{ steps.release_info.outputs.TEST_MODE }}"
+        
+        if [ "$TEST_MODE" = "true" ]; then
+          git add Frontend/public/config/rf_go_downloads_test.json
+          git commit -m "🧪 TEST: Update RF_Go download links to $VERSION" || exit 0
+        else
+          git add Frontend/public/config/rf_go_downloads.json
+          git commit -m "🚀 Update RF_Go download links to $VERSION" || exit 0
+        fi
+        
+        git push
+        
+        echo "🎉 Changes pushed successfully!"

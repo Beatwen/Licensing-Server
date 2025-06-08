@@ -1,14 +1,52 @@
 import { motion } from 'framer-motion';
 import { Download, Smartphone, Monitor, Apple, PlayCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+interface DownloadData {
+  version: string;
+  release_date: string;
+  release_url: string;
+  test_mode?: boolean;
+  downloads: {
+    windows: {
+      url: string;
+      filename: string;
+      platform: string;
+      type: string;
+    };
+    android: {
+      url: string;
+      filename: string;
+      platform: string;
+      type: string;
+    };
+    macos: {
+      url: string;
+      filename: string;
+      platform: string;
+      type: string;
+    };
+    ios: {
+      url: string;
+      filename: string;
+      platform: string;
+      type: string;
+    };
+  };
+}
 
 const DownloadSection = () => {
-  const downloadLinks = [
+  const [downloadData, setDownloadData] = useState<DownloadData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Données par défaut en cas d'échec du chargement
+  const defaultDownloadLinks = [
     {
       platform: 'Windows',
       icon: <Monitor className="w-8 h-8" />,
       version: 'v2.1.0',
       size: '45 MB',
-      downloadUrl: '#', // À remplacer par le vrai lien
+      downloadUrl: '#',
       description: 'Compatible Windows 10/11'
     },
     {
@@ -16,7 +54,7 @@ const DownloadSection = () => {
       icon: <Apple className="w-8 h-8" />,
       version: 'v2.1.0',
       size: '52 MB',
-      downloadUrl: '#', // À remplacer par le vrai lien
+      downloadUrl: '#',
       description: 'Compatible macOS 11+'
     },
     {
@@ -24,7 +62,7 @@ const DownloadSection = () => {
       icon: <Smartphone className="w-8 h-8" />,
       version: 'v2.1.0',
       size: '28 MB',
-      downloadUrl: '#', // À remplacer par le vrai lien
+      downloadUrl: '#',
       description: 'Android 8.0+'
     },
     {
@@ -32,10 +70,72 @@ const DownloadSection = () => {
       icon: <Apple className="w-8 h-8" />,
       version: 'v2.1.0',
       size: '32 MB',
-      downloadUrl: '#', // À remplacer par le vrai lien
+      downloadUrl: '#',
       description: 'iOS 14+'
     }
   ];
+
+  // Charger les données de téléchargement depuis le fichier JSON
+  useEffect(() => {
+    const fetchDownloadData = async () => {
+      try {
+        // Essayer d'abord le fichier de production
+        let response = await fetch('/config/rf_go_downloads.json');
+        
+        // Si échec, essayer le fichier de test
+        if (!response.ok) {
+          response = await fetch('/config/rf_go_downloads_test.json');
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          setDownloadData(data);
+        }
+      } catch (error) {
+        console.warn('Impossible de charger les données de téléchargement:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDownloadData();
+  }, []);
+
+  // Créer les liens de téléchargement avec les données dynamiques
+  const downloadLinks = downloadData ? [
+    {
+      platform: 'Windows',
+      icon: <Monitor className="w-8 h-8" />,
+      version: downloadData.version,
+      size: 'Télécharger',
+      downloadUrl: downloadData.downloads.windows.url,
+      description: downloadData.downloads.windows.platform
+    },
+    {
+      platform: 'macOS',
+      icon: <Apple className="w-8 h-8" />,
+      version: downloadData.version,
+      size: 'Télécharger',
+      downloadUrl: downloadData.downloads.macos.url,
+      description: downloadData.downloads.macos.platform
+    },
+    {
+      platform: 'Android',
+      icon: <Smartphone className="w-8 h-8" />,
+      version: downloadData.version,
+      size: 'Télécharger',
+      downloadUrl: downloadData.downloads.android.url,
+      description: downloadData.downloads.android.platform
+    },
+    {
+      platform: 'iOS',
+      icon: <Apple className="w-8 h-8" />,
+      version: downloadData.version,
+      size: 'Télécharger',
+      downloadUrl: downloadData.downloads.ios.url,
+      description: downloadData.downloads.ios.platform
+    }
+  ] : defaultDownloadLinks;
 
   return (
     <motion.div
@@ -47,9 +147,19 @@ const DownloadSection = () => {
         <h2 className="text-2xl font-bold mb-4 flex items-center">
           <Download className="w-6 h-6 mr-2 text-blue-600" />
           Télécharger RF.Go
+          {downloadData?.test_mode && (
+            <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
+              🧪 TEST
+            </span>
+          )}
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
           Téléchargez RF.Go sur votre plateforme préférée et commencez à gérer vos fréquences sans fil.
+          {downloadData?.test_mode && (
+            <span className="block mt-2 text-orange-600 font-medium">
+              ⚠️ Version de test - Liens de développement
+            </span>
+          )}
         </p>
       </div>
 
@@ -83,13 +193,28 @@ const DownloadSection = () => {
 
             <button
               onClick={() => {
-                // Ici vous pouvez ajouter la logique de téléchargement
-                console.log(`Téléchargement ${platform.platform}`);
+                if (platform.downloadUrl && platform.downloadUrl !== '#') {
+                  window.open(platform.downloadUrl, '_blank');
+                } else {
+                  console.log(`Téléchargement ${platform.platform} - Lien non disponible`);
+                }
               }}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+              disabled={loading || platform.downloadUrl === '#'}
+              className={`w-full py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
+                loading || platform.downloadUrl === '#'
+                  ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
               <Download className="w-5 h-5" />
-              <span>Télécharger pour {platform.platform}</span>
+              <span>
+                {loading 
+                  ? 'Chargement...' 
+                  : platform.downloadUrl === '#' 
+                    ? 'Bientôt disponible'
+                    : `Télécharger pour ${platform.platform}`
+                }
+              </span>
             </button>
           </motion.div>
         ))}
