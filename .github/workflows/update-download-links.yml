@@ -3,7 +3,8 @@ name: Update RF_Go Download Links
 on:
   repository_dispatch:
     types: [rf-go-release]
-
+permissions:
+    contents: write
 jobs:
   update-links:
     runs-on: ubuntu-latest

@@ -75,14 +75,11 @@ const DownloadSection = () => {
     }
   ];
 
-  // Charger les données de téléchargement depuis le fichier JSON
   useEffect(() => {
     const fetchDownloadData = async () => {
       try {
-        // Essayer d'abord le fichier de production
         let response = await fetch('/config/rf_go_downloads.json');
         
-        // Si échec, essayer le fichier de test
         if (!response.ok) {
           response = await fetch('/config/rf_go_downloads_test.json');
         }
