@@ -86,6 +86,7 @@ const startServer = async () => {
       next();
     });
     
+    // CORS configuration
     app.use(cors({
       origin: [
         'https://licensing.noobastudio.be',
@@ -101,8 +102,13 @@ const startServer = async () => {
         'X-USER-KEY',
         'access_token',
         'authorization'
-      ]
+      ],
+      exposedHeaders: ['Content-Range', 'X-Content-Range'],
+      maxAge: 86400 // 24 heures
     }));
+
+    // Handle preflight requests
+    app.options('*', cors());
     
     app.use(express.json());
     app.use(bodyParser.urlencoded({ extended: true }));
