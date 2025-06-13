@@ -128,7 +128,7 @@ const DownloadSection = () => {
       icon: <Apple className="w-8 h-8" />,
       version: downloadData.version,
       size: 'Télécharger',
-      downloadUrl: downloadData.downloads.ios.url,
+      downloadUrl: '#',
       description: downloadData.downloads.ios.platform
     }
   ] : defaultDownloadLinks;
